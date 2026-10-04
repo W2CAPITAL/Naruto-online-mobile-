@@ -1,0 +1,172 @@
+{
+  "source": "Naruto_Kaguya_Remaster_Portable.zip",
+  "author": "Herrington Kaguya",
+  "port": "partial: main default portraits and 15 sound exports",
+  "assets": [
+    {
+      "path": "feng/hengtiao.png",
+      "kind": "portrait",
+      "size": [
+        176,
+        68
+      ],
+      "sha256": "5c16834a563c997cb18df235d6952cb2f8850e0a2fca6e525a40c50278cbf9e0"
+    },
+    {
+      "path": "feng/jineng.png",
+      "kind": "portrait",
+      "size": [
+        45,
+        45
+      ],
+      "sha256": "79b8059577a48b63cbc2cc73a1ab1265ea166ddc5316b92781308d20720e5b53"
+    },
+    {
+      "path": "huo/hengtiao.png",
+      "kind": "portrait",
+      "size": [
+        176,
+        68
+      ],
+      "sha256": "3291a34d2cb9a5cd9a7049270d5233c477a0e8d7044c260b2c8ee03552f39caa"
+    },
+    {
+      "path": "huo/jineng.png",
+      "kind": "portrait",
+      "size": [
+        45,
+        45
+      ],
+      "sha256": "c9151d8e4eb6223ee141ed479732f8ee39cc98a53c39486c2aa0029081e60b5a"
+    },
+    {
+      "path": "lei/hengtiao.png",
+      "kind": "portrait",
+      "size": [
+        176,
+        68
+      ],
+      "sha256": "f12125d3acbfde1d633653fdd7e1752ca53e13c22d7ea8688463458db4a9612b"
+    },
+    {
+      "path": "lei/jineng.png",
+      "kind": "portrait",
+      "size": [
+        45,
+        45
+      ],
+      "sha256": "3aa04b82750c6c9f3d6f2f3cb82051f5ee2fb24dd58082a29583b32b688ce161"
+    },
+    {
+      "path": "shui/hengtiao.png",
+      "kind": "portrait",
+      "size": [
+        176,
+        68
+      ],
+      "sha256": "dbc2b1ed08cb3af0b6dc609ca14b114b73d0be15e8ad71d5c59b03114f88bbf5"
+    },
+    {
+      "path": "shui/jineng.png",
+      "kind": "portrait",
+      "size": [
+        45,
+        45
+      ],
+      "sha256": "2424e101347d06a1b2143a3d31543e1b2c1589a65ba6941be6b8b65dd97ca366"
+    },
+    {
+      "path": "tu/hengtiao.png",
+      "kind": "portrait",
+      "size": [
+        176,
+        68
+      ],
+      "sha256": "dfbd75c479cf78d40b2c19434ad8af69b5caa8186927a7e3d3f71ba5b0cb86f8"
+    },
+    {
+      "path": "tu/jineng.png",
+      "kind": "portrait",
+      "size": [
+        45,
+        45
+      ],
+      "sha256": "735c391ab71817c1441b9dec0c3a687fc89abfb2a5717ff59bc019541712968e"
+    },
+    {
+      "path": "sounds/s1754.swf",
+      "kind": "sound",
+      "sha256": "4cf3fdf1191982e93c4b57f108e31d9cbd69174656cac24bf36110b833c2646d"
+    },
+    {
+      "path": "sounds/s1790.swf",
+      "kind": "sound",
+      "sha256": "7a27a338fbc5d8db42e9c4e3cbbc040fd62cffce3a0ea3464b9e97cc057e5969"
+    },
+    {
+      "path": "sounds/s1791.swf",
+      "kind": "sound",
+      "sha256": "b2666318c7c48cc18175b40aba29bb7fba4e326587f302a149129bfc349274d8"
+    },
+    {
+      "path": "sounds/s1792.swf",
+      "kind": "sound",
+      "sha256": "a1f39f3bf6037a153eaa65869b2b3d774d5a82bccf1cb8902cfb746b24d25417"
+    },
+    {
+      "path": "sounds/s17661.swf",
+      "kind": "sound",
+      "sha256": "80ccbd4d1fd93eb0c32c9d138464eaef872c204f3e4bd6c4bd3ce50138952d12"
+    },
+    {
+      "path": "sounds/s17662.swf",
+      "kind": "sound",
+      "sha256": "6ba616ddf5658968c50093d0c9e0effe28de146b35b2762f5009c11cd14c19f3"
+    },
+    {
+      "path": "sounds/s17663.swf",
+      "kind": "sound",
+      "sha256": "351b4130f3847e78544b76d2412f6240a26361fe1a55ce62afefde17221169f3"
+    },
+    {
+      "path": "sounds/s17664.swf",
+      "kind": "sound",
+      "sha256": "3545fee1f2f9c04a252cdb1fdb84c083c0f548fbfb734cf4f5443daef66631d3"
+    },
+    {
+      "path": "sounds/s17665.swf",
+      "kind": "sound",
+      "sha256": "7468026489b999447df78e1b94247a20688b18c5a25ecc7525847e87d9f19e47"
+    },
+    {
+      "path": "sounds/s17666.swf",
+      "kind": "sound",
+      "sha256": "1f93c40071816854dde3025e4254bbf7fb080bd1d26d22eee943c1efa0ad7b22"
+    },
+    {
+      "path": "sounds/s17667.swf",
+      "kind": "sound",
+      "sha256": "9760df2d23fbe42cbdd55f259f72f7eb7b61d56e98ea86b57ce0f35220ea7617"
+    },
+    {
+      "path": "sounds/s17668.swf",
+      "kind": "sound",
+      "sha256": "c5fed35796e80e2aa221c229f19e52daed917312f98a2543f72b58924f1ffd82"
+    },
+    {
+      "path": "sounds/s17669.swf",
+      "kind": "sound",
+      "sha256": "2bdaf4ace08ae7bd979f94d7bb1fc60411482258be34cef65a4e021b58830660"
+    },
+    {
+      "path": "sounds/s17670.swf",
+      "kind": "sound",
+      "sha256": "dab4ccaa557355d1342bdbd6be560f948d42c2ae1534e5efbbec857b7712ac13"
+    },
+    {
+      "path": "sounds/s17676.swf",
+      "kind": "sound",
+      "sha256": "ac41284db49769975232ec0765c81ac88e8ea83ad673026b4cc2e3303102ad75"
+    }
+  ]
+}

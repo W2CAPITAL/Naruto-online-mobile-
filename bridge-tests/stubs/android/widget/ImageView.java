@@ -1,0 +1,1 @@
+package android.widget;public class ImageView extends android.view.View {public Object drawable;public ImageView(android.content.Context c){}public void setImageDrawable(android.graphics.drawable.Drawable d){drawable=d;}}

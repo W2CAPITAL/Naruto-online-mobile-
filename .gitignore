@@ -1,0 +1,31 @@
+# Segredos de assinatura e ambiente local
+*.p12
+*.pfx
+*.keystore
+*.jks
+.env
+.env.*
+*password*
+*senha*
+
+# Ferramentas, runtime e produtos compilados
+tooling/
+air-sdk/
+*.apk
+*.aab
+*.ane
+*.swc
+*.jar
+*.class
+*.log
+__pycache__/
+*.pyc
+extensions/
+NarutoAir.swf
+library.swf
+
+# Mídia externa: obtenha somente com autorização
+mods/kaguya/**/*.png
+mods/kaguya/**/*.swf
+icons/
+brand/*.png

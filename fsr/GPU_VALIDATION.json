@@ -1,0 +1,46 @@
+{
+  "backend": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "gles": "OpenGL ES 3.2 Mesa 25.2.8-0ubuntu0.24.04.2",
+  "kernels": "unmodified AMD FSR 1 FP32 EASU/RCAS",
+  "fixtures": [
+    {
+      "input": [
+        16,
+        12
+      ],
+      "output": [
+        20,
+        15
+      ],
+      "max_reference_error_8bit": 0,
+      "gpu_copy_matches": true
+    },
+    {
+      "input": [
+        48,
+        28
+      ],
+      "output": [
+        60,
+        35
+      ],
+      "max_reference_error_8bit": 0,
+      "gpu_copy_matches": true
+    },
+    {
+      "input": [
+        31,
+        19
+      ],
+      "output": [
+        39,
+        24
+      ],
+      "max_reference_error_8bit": 0,
+      "gpu_copy_matches": true
+    }
+  ],
+  "constant_colors_and_black_borders": true,
+  "android_device_tested": false,
+  "frame_generation": false
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application xmlns="http://ns.adobe.com/air/application/51.1">
+  <id>br.davi.narutoair.c71r2</id>
+  <versionNumber>1.3.16</versionNumber>
+  <versionLabel>1.3.16 Audio nativo e Kaguya</versionLabel>
+  <filename>NarutoAir</filename>
+  <name>Naruto Online Mobile</name>
+  <description>Port Android do launcher OAS: WebView para login/portal e AIR AVM2/Stage3D para o cliente Flash.</description>
+  <supportedProfiles>mobileDevice</supportedProfiles>
+  <initialWindow>
+    <content>NarutoAir.swf</content>
+    <visible>true</visible>
+    <fullScreen>true</fullScreen>
+    <autoOrients>false</autoOrients>
+    <aspectRatio>landscape</aspectRatio>
+    <renderMode>direct</renderMode>
+    <allowLowQuality>true</allowLowQuality>
+  </initialWindow>
+  <icon>
+    <image48x48>icons/icon48.png</image48x48>
+    <image72x72>icons/icon72.png</image72x72>
+    <image96x96>icons/icon96.png</image96x96>
+    <image144x144>icons/icon144.png</image144x144>
+    <image192x192>icons/icon192.png</image192x192>
+  </icon>
+  <android>
+    <manifestAdditions><![CDATA[
+      <manifest android:installLocation="auto">
+        <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35"/>
+        <uses-permission android:name="android.permission.INTERNET"/>
+        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+        <application android:hardwareAccelerated="true" android:allowBackup="false" android:usesCleartextTraffic="true"/>
+      </manifest>
+    ]]></manifestAdditions>
+    <displayCutoutMode>shortEdges</displayCutoutMode>
+  </android>
+  <extensions>
+    <extensionID>br.davi.narutoair.portal</extensionID>
+  </extensions>
+</application>

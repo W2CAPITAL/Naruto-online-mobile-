@@ -1,0 +1,10 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const source=fs.readFileSync(new URL('../src/br/davi/narutoair/compat/MobileControls.as',import.meta.url),'utf8');
+const start=source.indexOf('  private function movePad('),end=source.indexOf('  private function endPad(',start);
+let body=source.slice(start,end).replace(/private function movePad\(e:MouseEvent\):void/,'function movePad(e)').replace(/:Number/g,'').replace(/e.target is DisplayObject/g,'!!e.target').replace(/e.target as DisplayObject/g,'e.target');
+const pad={x:500,y:400,width:260,height:120,contains:()=>false};
+const c={visible:true,tracking:true,host:{stageWidth:1000,stageHeight:800},pad,cursor:{},px:200,py:150,lx:550,ly:450,total:0,dragging:false,Math};
+let emitted=0;c.pointer=()=>{emitted++;if(emitted>2)throw new Error('feedback loop');vm.runInContext('movePad({target:game,stageX:px,stageY:py})',c);};c.game={};vm.createContext(c);vm.runInContext(body,c);
+c.event={target:pad,stageX:560,stageY:455};vm.runInContext('movePad(event)',c);assert.equal(emitted,1);assert.equal(c.px,214);assert.equal(c.py,157);
+c.px=490;c.py=450;c.lx=560;c.ly=455;c.event={target:pad,stageX:580,stageY:455};vm.runInContext('movePad(event)',c);assert.equal(c.px,472);assert.equal(emitted,2);
+console.log('PASS: production touchpad move handler ignores virtual mouse feedback and keeps cursor outside its input pad.');

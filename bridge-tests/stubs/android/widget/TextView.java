@@ -1,0 +1,1 @@
+package android.widget;public class TextView extends android.view.View {public String text;public TextView(android.content.Context c){}public void setText(CharSequence s){text=s.toString();}public void setTextSize(float s){}public void setTextColor(int c){}public void setGravity(int i){}}

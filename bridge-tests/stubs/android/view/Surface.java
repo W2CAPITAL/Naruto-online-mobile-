@@ -1,0 +1,1 @@
+package android.view;public class Surface {public float requestedFPS;public boolean unsupported;public int frameRateCalls;public void setFrameRate(float value,int compatibility,int strategy){frameRateCalls++;if(unsupported)throw new IllegalArgumentException();requestedFPS=value;}public void setFrameRate(float value,int compatibility){frameRateCalls++;requestedFPS=value;}}

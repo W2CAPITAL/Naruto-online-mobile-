@@ -1,0 +1,23 @@
+{
+  "retrieved": "2026-10-04",
+  "repository": "https://github.com/GPUOpen-Effects/FidelityFX-FSR",
+  "version": "FSR 1 v1.20210629 (FP32)",
+  "license": "MIT (AMD copyright in NOTICE.txt and upstream headers)",
+  "source_files": {
+    "ffx_a.h": {
+      "url": "https://raw.githubusercontent.com/GPUOpen-Effects/FidelityFX-FSR/master/ffx-fsr/ffx_a.h",
+      "sha256": "f60e2722fcd13989523b9164d776ab382b3692791767f3bf8bb19967f763f3fb"
+    },
+    "ffx_fsr1.h": {
+      "url": "https://raw.githubusercontent.com/GPUOpen-Effects/FidelityFX-FSR/master/ffx-fsr/ffx_fsr1.h",
+      "sha256": "93c3922362ea7fc99cbcc698ca30c98de4f8c246d1fbb0b09e015ddef38ce3a5"
+    }
+  },
+  "generator": "build-tools/build-fsr-shaders.py",
+  "port_changes": [
+    "ES 300 fragment wrappers; clamped texelFetch replaces textureGather with equivalent ordering",
+    "Explicit uint zero literals for GLES compiler",
+    "Exclude unused ABfe/ABfiM/ARmp8x8 utilities requiring GLES 3.1"
+  ],
+  "frame_generation": false
+}

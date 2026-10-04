@@ -1,0 +1,1 @@
+package br.davi.narutoair.portal; public class PortalContext { public static void access$1600(PortalContext owner, String message) { } }
