@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title desc">
+  <title id="title">Naruto Online Mobile</title>
+  <desc id="desc">Capa do projeto em grafite e laranja. Cliente Android comunitário, mantido por W1/W2 Soluções Capitais.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#141b25"/><stop offset="1" stop-color="#0a0f17"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#df672e"/><stop offset="1" stop-color="#ffd38d"/></linearGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M 48 0 H 0 V 48" fill="none" stroke="#9ba8be" stroke-opacity=".045"/></pattern>
+  </defs>
+  <rect width="1280" height="400" rx="22" fill="url(#bg)"/>
+  <rect width="1280" height="400" rx="22" fill="url(#grid)"/>
+  <path d="M 0 0 H 1280" stroke="#ff9a54" stroke-width="4"/>
+  <path d="M 795 400 L 945 0" stroke="#8393aa" stroke-opacity=".13"/>
+  <g fill="none" stroke="#ffab69">
+    <circle cx="1080" cy="200" r="155" stroke-opacity=".08"/>
+    <circle cx="1080" cy="200" r="123" stroke-opacity=".16"/>
+    <circle cx="1080" cy="200" r="91" stroke-opacity=".22"/>
+    <path d="M 991 261 C 1127 284 1183 202 1129 152 C 1084 111 1017 146 1030 191 C 1041 227 1093 224 1100 199 C 1105 180 1081 169 1072 184" stroke="url(#accent)" stroke-width="11" stroke-linecap="round"/>
+    <path d="M 981 263 L 1003 295 L 1040 278" stroke="url(#accent)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="64" y="54" width="32" height="4" rx="2" fill="#ff9a54"/>
+    <text x="111" y="65" fill="#b8c1d0" font-size="19" letter-spacing="3">W1/W2 SOLUÇÕES CAPITAIS</text>
+    <text x="60" y="163" fill="#f4f5f8" font-size="70" font-weight="700" letter-spacing="-2">Naruto Online</text>
+    <text x="60" y="243" fill="url(#accent)" font-size="78" font-weight="700" letter-spacing="-2">Mobile</text>
+    <path d="M 64 280 H 761" stroke="#34404e"/>
+    <text x="64" y="323" fill="#bac4d3" font-size="23" letter-spacing="2">ANDROID · AIR / AVM2 · CLIENTE COMUNITÁRIO</text>
+  </g>
+</svg>

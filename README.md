@@ -1,469 +1,454 @@
+<div align="center">
+
+<img src="docs/assets/readme-cover.svg" alt="Naruto Online Mobile — cliente Android comunitário" width="100%" />
+
 # Naruto Online Mobile
 
-**Cliente Android comunitário para executar o cliente Flash de Naruto Online BR no próprio celular, com login pelo portal, controles de toque e uma camada de compatibilidade AIR/AVM2.**
+**O cliente Flash de Naruto Online BR, executado no seu Android.**
 
-Mantido por **W1/W2 Soluções Capitais**. Documentação da base **1.3.17**, revisada em **4 de outubro de 2026**.
+Login pelo portal, jogo no runtime AIR e controles pensados para a tela do celular.
 
-| Produto | Plataforma | Código publicado | Situação |
-| --- | --- | --- | --- |
-| Naruto Online Mobile | Android 7.0+, ARM64 | Camada mobile, adaptadores, transporte, filtros e testes | Experimental; funcionamento relatado pelo usuário, sem certificação em todos os aparelhos |
+**1.3.17** · Android **7.0+** · **ARM64** · Camada própria sob **MIT**
 
-> Este é um cliente não oficial. O projeto não contém o código-fonte completo de Naruto Online, não é um servidor privado e não é endossado pela Oasis Games, Tencent, Bandai Namco, AMD ou NVIDIA. A camada própria publicada tem licença MIT; o jogo, o runtime AIR e os recursos de terceiros têm direitos e condições separados. A ponte nativa histórica ainda possui uma dependência sem fonte disponível, descrita abaixo.
+[Começar](#começar) · [Controles](#controles) · [Gráficos](#gráficos-e-desempenho) · [Desenvolvimento](#desenvolvimento) · [Suporte](#suporte)
 
-**Links:** [Código](https://github.com/W2CAPITAL/Naruto-online-mobile-) · [Problemas e sugestões](https://github.com/W2CAPITAL/Naruto-online-mobile-/issues) · [W1](https://github.com/W1CAPITAL) · [W2](https://github.com/W2CAPITAL) · [Suporte no WhatsApp](https://wa.me/5513991199349)
+</div>
 
-## Índice
+---
 
-- [O que é, exatamente](#o-que-é-exatamente)
-- [Requisitos mínimos e compatibilidade](#requisitos-mínimos-e-compatibilidade)
-- [Instalação e primeiro acesso](#instalação-e-primeiro-acesso)
-- [Funcionalidades e configurações](#funcionalidades-e-configurações)
-- [Arquitetura e execução do jogo](#arquitetura-e-execução-do-jogo)
-- [FPS, fluidez, cores e upscaling](#fps-fluidez-cores-e-upscaling)
-- [FSR, DLSS e geração de quadros](#fsr-dlss-e-geração-de-quadros)
-- [Kaguya: alcance do port](#kaguya-alcance-do-port)
-- [Música, efeitos e áudio](#música-efeitos-e-áudio)
-- [Rede, cache e carregamento](#rede-cache-e-carregamento)
-- [Contas, servidores e recarga](#contas-servidores-e-recarga)
-- [Segurança, privacidade e permissões](#segurança-privacidade-e-permissões)
-- [O que está aberto e o que falta](#o-que-está-aberto-e-o-que-falta)
-- [Estrutura do repositório](#estrutura-do-repositório)
-- [Ambiente de desenvolvimento e build](#ambiente-de-desenvolvimento-e-build)
-- [Testes e nível de validação](#testes-e-nível-de-validação)
-- [Diagnóstico de problemas](#diagnóstico-de-problemas)
-- [Contribuição e roteiro](#contribuição-e-roteiro)
-- [Licenças, créditos e suporte](#licenças-créditos-e-suporte)
+## O projeto
 
-## O que é, exatamente
+Naruto Online Mobile reúne o portal brasileiro do jogo e uma camada de execução AIR em um aplicativo Android. Você entra na sua conta, escolhe o servidor e abre o cliente real. O SWF roda no aparelho; conta, personagens e progresso continuam nos serviços utilizados pelo jogo.
 
-Naruto Online Mobile adapta para Android o caminho de acesso de um jogo que utiliza um cliente Flash/ActionScript 3. O aplicativo reúne uma WebView nativa para o portal e um runtime AIR incorporado para executar o cliente AVM2. O processamento do cliente acontece no aparelho; autenticação, personagens, combate persistente e demais serviços continuam dependendo dos servidores do jogo.
+O trabalho deste repositório está na adaptação: fazer o cliente encontrar seus recursos, conservar a sessão, receber toques e teclado, carregar os módulos e encerrar cada sessão corretamente. O APK incorpora o runtime, então a instalação dispensa um plugin Flash separado.
 
-A parte desenvolvida neste projeto faz a ligação entre esses ambientes: captura a entrada correta do cliente, conserva os parâmetros de lançamento, resolve caminhos de recursos, adapta referências incompatíveis com AIR mobile, fornece entrada por toque e acompanha o ciclo de vida do aplicativo.
+O projeto é mantido por **W1/W2 Soluções Capitais**. A camada própria tem código público e licença MIT. O cliente do jogo, o runtime AIR e os recursos de terceiros conservam seus direitos e condições de uso.
 
-O APK não transforma o jogo em uma versão independente. Ele precisa de internet, acesso ao portal e uma sessão válida. Também não oferece acesso a contas, itens, moedas, personagens ou privilégios que o servidor original não autorize.
+> **Estado atual:** versão experimental, com funcionamento relatado durante o desenvolvimento. A base 1.3.17 passou pelas verificações de código e empacotamento descritas aqui. A reprodução de áudio dessa versão e o desempenho em diferentes celulares ainda precisam de confirmação no aparelho.
 
-### O que o produto entrega
+### O que você encontra no aplicativo
 
-- Acesso ao portal brasileiro, seleção manual de conta e servidor e passagem para o cliente real.
-- Execução local de SWF/AVM2 com runtime AIR incorporado ao APK.
-- Teclado, mouse virtual, toque, indicação de clique e controles móveis.
-- Meta de 60 FPS por padrão, com taxas superiores escolhidas pelo usuário.
-- Perfil fixo de cores e redução da resolução interna com ampliação da imagem.
-- FSR 1 espacial experimental, opcional, com EASU/RCAS na GPU.
-- Um port cosmético parcial de recursos Kaguya quando os recursos autorizados estão presentes no pacote.
-- Acesso à recarga oficial e ferramentas para trocar conta/servidor sem reaproveitar o cliente antigo.
-- Código público da camada própria para estudo, revisão e contribuição.
-
-### O que ele não entrega
-
-Não há streaming remoto do jogo, Ruffle, emulação de Windows, servidor privado, modo offline, DLSS, geração de quadros intermediários ou garantia de FPS constante. O código do jogo original não se torna aberto por ser carregado pelo aplicativo. Também não há integração completa do remaster Kaguya de Windows.
-
-## Requisitos mínimos e compatibilidade
-
-Os requisitos abaixo separam **restrições reais do pacote** de fatores de desempenho ainda sem medição suficiente. Um aparelho que permite instalar o APK pode continuar sem conseguir sustentar uma sessão fluida.
-
-### Requisitos confirmados da base 1.3.17
-
-| Item | Requisito | Como foi determinado |
-| --- | --- | --- |
-| Sistema | Android **7.0 ou superior**, API 24+ | `minSdkVersion=24` no descritor |
-| Arquitetura | **ARM64 / arm64-v8a**, com Android de 64 bits | Build `Android-ARM64`, ADT `-arch armv8` |
-| Portal | WebView funcional, JavaScript e cookies disponíveis | Fluxo nativo de login e sessão |
-| Rede | Internet e acesso permitido aos domínios do portal, autenticação, CDN e servidor | O cliente depende de serviços externos |
-| Conta | Conta válida aceita pelo portal utilizado | O aplicativo não fornece autenticação independente |
-| Gráficos básicos | Runtime AIR e renderização compatíveis com os drivers do aparelho | Perfil mobile, modo `direct`, aceleração de hardware |
-| Armazenamento | Espaço para instalar o APK/runtime e os dados/cache da sessão | O arquivo APK sozinho não representa a ocupação instalada |
-| Orientação | Uso em modo paisagem | Descritor do aplicativo |
-
-**Processador ARM64 com Android de 32 bits não satisfaz o requisito.** O APK desta base não inclui ARMv7, x86 ou x86_64. Não existe uma compilação iOS neste repositório.
-
-O alvo declarado é **API 35**. Isso não exige Android 15: `targetSdkVersion` e `minSdkVersion` têm funções diferentes. Também não significa que cada versão, fabricante ou driver foi testado.
-
-### RAM, CPU, GPU e espaço: o que ainda não foi certificado
-
-Não há um mínimo numérico de RAM, frequência de CPU, modelo de GPU ou tamanho total instalado validado por uma matriz de aparelhos. Por isso, o projeto **não promete que 2 GB, 3 GB, 4 GB ou qualquer outro número seja suficiente**. Memória disponível para o processo, temperatura, resolução da tela, driver e recursos carregados na cena influenciam o resultado.
-
-O APK 1.3.17 de referência tem **12.767.250 bytes, aproximadamente 12,18 MiB**. O cache estático próprio tem teto de **64 MiB**, mas esse teto não inclui WebView, memória de SWF, texturas, áudio nem todos os dados privados do aplicativo. Não se deve usar 64 MiB como requisito de armazenamento total ou de RAM.
-
-Para validar um aparelho, registre RAM total, RAM disponível, modelo do SoC, versão do Android, WebView, resolução e taxa da tela. Teste login, carregamento, batalha, menus com muitos ninjas, áudio, recarga e retorno do segundo plano. Só depois de testes repetidos é possível estabelecer um perfil mínimo de desempenho confiável.
-
-### Requisitos adicionais do FSR experimental
-
-O FSR não é necessário para entrar no jogo. A opção exige um contexto **OpenGL ES 3.0**, caminho EGL14 funcional e suporte dos drivers às operações utilizadas. A integração limita a saída a **8.388.608 pixels** e respeita o tamanho máximo de textura informado pela GPU.
-
-Uma GPU que anuncia ES 3.0 ainda pode apresentar problemas específicos de driver ou de composição de Surface. A rotina deve retornar à saída AIR normal quando a saída FSR não inicia ou perde suas condições de funcionamento.
-
-### Situação da compatibilidade
-
-| Plataforma/aparelho | Situação |
+| Área | Recursos |
 | --- | --- |
-| Aparelho Android usado nos relatos de desenvolvimento | O usuário relatou entrada no jogo e uso dos controles; isso não constitui benchmark completo |
-| Outros Android ARM64, API 24+ | Elegíveis pelo pacote; funcionamento e desempenho precisam ser verificados |
-| Android abaixo de 7.0 | Fora do mínimo declarado |
-| Android ARM de 32 bits | Não atendido por este APK |
-| Emuladores x86/x86_64 | Sem build específico; tradução ARM, quando existente, não foi validada |
-| iPhone/iPad | Sem suporte neste projeto |
-| PC com Magpie | É outra plataforma e outra integração; não é a execução deste APK |
+| Acesso | Portal BR, sessão salva, escolha manual de servidor e troca de conta |
+| Jogo | Cliente SWF/AVM2 executado no Android com AIR incorporado |
+| Entrada | Toque, mouse virtual, arrasto, teclado e atalhos Enter/Esc/Tab |
+| Interface | Botão CONTROLES arrastável e contador de FPS reposicionável |
+| Imagem | Perfil de contraste, escala interna e FSR 1 opcional |
+| Cadência | Meta de 60 FPS; 90, 120 e máxima da tela por escolha |
+| Áudio | Saída de mídia, SOM ON/OFF persistido e teste local de som |
+| Kaguya | Subconjunto cosmético: estilos, retratos e efeitos de áudio |
+| Sessão | Reinício, retorno aos servidores e acesso à recarga oficial |
 
-O nome histórico `RealmeC71` nos artefatos não restringe o aplicativo a esse modelo, nem certifica compatibilidade com todos os celulares.
+### Nesta versão: 1.3.17
 
-## Instalação e primeiro acesso
+A atualização corrige a adaptação dos tipos de áudio. `Sound` permanece nativo nas superclasses, assinaturas e conversões usadas pelos sons embutidos. A resolução de caminhos externos atua somente nas construções estáticas reconhecidas de `new Sound(...)`.
 
-1. Obtenha o APK publicado pelo mantenedor e confira versão, origem e integridade.
-2. Confirme Android API 24+ e suporte a `arm64-v8a` pelo sistema, além do hardware.
-3. Faça a instalação pelo mecanismo padrão do Android. Atualizações devem conservar a assinatura do aplicativo instalado.
-4. Abra em paisagem e entre na sua conta pelo portal. A sessão salva pode conservar o login entre aberturas.
-5. Escolha o servidor desejado. Aguarde os recursos centrais e a entrada do cliente.
-6. Abra **CONTROLES**, reposicione o botão e configure toque, mouse e teclado conforme a necessidade.
-7. Comece com a meta padrão de 60 FPS e FSR desligado. Compare o comportamento antes de ativar opções mais exigentes.
+Os **15 SWFs de áudio do Kaguya atravessam o adaptador sem alteração de bytes**. A verificação independente também cobre construções externas, casts, desvios, switches e handlers. Ao voltar do segundo plano, o aplicativo reaplica o estado de áudio escolhido.
 
-Não é necessário instalar um plugin Flash separado: o APK utiliza um runtime incorporado. Isso não elimina a dependência do portal nem as condições de uso do runtime.
+Os recursos anteriores de portal, controles, cache e renderização continuam na base. O FSR permanece opcional e desligado a cada abertura.
 
-### Artefato de referência
+<details>
+<summary><strong>Guia de leitura</strong></summary>
+
+- **Para jogar:** [Começar](#começar), [Requisitos](#requisitos), [Controles](#controles) e [Áudio](#áudio).
+- **Para configurar:** [Gráficos e desempenho](#gráficos-e-desempenho), [FSR, DLSS e Magpie](#fsr-dlss-e-magpie) e [Kaguya](#kaguya).
+- **Para entender o aplicativo:** [Arquitetura](#arquitetura), [Rede e cache](#rede-e-cache) e [Contas e recarga](#contas-e-recarga).
+- **Para desenvolver:** [Código público](#código-público), [Desenvolvimento](#desenvolvimento), [Validação](#validação) e [Contribuir](#contribuir).
+- **Para resolver uma falha:** [Diagnóstico](#diagnóstico), [Privacidade](#privacidade-e-permissões) e [Suporte](#suporte).
+
+</details>
+
+## Começar
+
+Use o APK fornecido pelo mantenedor. Confira os requisitos abaixo e siga o fluxo do aplicativo:
+
+1. **Instale o APK.** A atualização sobre uma versão existente exige o mesmo certificado de assinatura.
+2. **Abra em paisagem e faça login.** A conta salva pode continuar autenticada entre aberturas.
+3. **Escolha o servidor.** Aguarde o carregamento dos módulos e recursos do cliente.
+4. **Abra CONTROLES.** Arraste o botão para um lugar confortável e ajuste mouse, teclado e contador.
+5. **Comece com 60 FPS e FSR desligado.** Só mude uma opção por vez ao comparar a imagem e a fluidez.
+6. **Confira o áudio.** Use SOM: ON, ajuste o volume de mídia do Android e veja as categorias de música e efeitos nas configurações do jogo.
+
+O acesso depende de internet, uma conta válida e disponibilidade do portal, CDN e servidor. O cache ajuda na reabertura de recursos, mas não oferece uma sessão offline.
+
+<details>
+<summary><strong>Identificação do APK 1.3.17</strong></summary>
 
 | Campo | Valor |
 | --- | --- |
-| Versão | `1.3.17` |
-| versionCode verificado | `1003016` |
-| Pacote | `air.br.davi.narutoair.c71r2` |
-| Arquivo histórico | `NarutoOnline_RealmeC71_1.3.17.apk` |
-| Assinatura | APK Signature Scheme v2 verificado na geração |
-| SHA-256 do APK | `ab3ee88e9147a8815e32a894c13a5ec405291847904cf52d345c37ae9425c49d` |
-| SHA-256 do certificado | `1b4b528b92aa1ea13753798cbb701d66589333f7b2d8afb3a750aa1c83642c29` |
+| Arquivo | `NarutoOnline_RealmeC71_1.3.17.apk` |
+| Pacote Android | `air.br.davi.narutoair.c71r2` |
+| versionCode | `1003017` |
+| Tamanho do arquivo | 12.767.250 bytes — aproximadamente 12,18 MiB |
+| Arquitetura | `arm64-v8a` |
+| Assinatura verificada | APK Signature Scheme v2 |
 
-Esses identificadores descrevem um artefato específico. Uma recompilação com outra chave ou conteúdo terá hashes diferentes. Esta publicação de código/documentação não cria, por si só, uma GitHub Release nem hospeda esse APK no repositório.
+**SHA-256 do APK**
 
-## Funcionalidades e configurações
+```text
+a3c0eed5f3865695e6af0130b4e26aceaad26bb3168dab11c94196fa572955c9
+```
 
-| Recurso | Comportamento da base | Observação |
-| --- | --- | --- |
-| Login | Sessão do portal; sem registro automático de convidado no fluxo atual | A conta já salva pode permanecer autenticada |
-| Servidores | Seleção manual e descarte do cliente anterior | Não deve fixar silenciosamente a conta ou o servidor antigo |
-| CONTROLES | Botão flutuante arrastável, com posição salva | Elementos de interface do jogo variam conforme a tela |
-| Mouse virtual | Touchpad, cursor e suporte a clique/arrasto | É entrada para o cliente, não um mouse global do Android |
-| Teclado | Entrada Android e atalhos Enter/Esc/Tab | Comportamento depende do campo e do foco do jogo |
-| Marca de clique | Feedback visual configurável | Não substitui o recebimento do evento pelo cliente |
-| FPS | HUD discreto, reposicionável entre cantos e ocultável | Sem bloquear a entrada do jogo |
-| Meta de FPS | 60 padrão; 90/120/máxima mediante escolha | Taxa selecionada é preferência, não desempenho garantido |
-| Cores | Ajuste moderado de contraste ativo no perfil | Não altera os assets originais no servidor |
-| Ampliação básica | Escala interna de 80%, quando suportada | Retorno à superfície adequada ao cliente quando necessário |
-| FSR 1 | Opcional, experimental e desligado a cada abertura | A seleção não é persistida como padrão obrigatório |
-| Kaguya | Liga/desliga e estilo salvos | Exige os recursos do mod autorizados no pacote |
-| Som | SOM ON/OFF salvo; TESTAR SOM local | Volume do Android e opções internas do jogo continuam relevantes |
-| Recarga | Abertura do fluxo oficial da sessão | Nenhuma compra é realizada automaticamente |
-| Identificação | Copyright e links de suporte no portal | O rodapé some ao entrar no cliente |
-| LOG/DIAG | Botões removidos da interface de produção | Instrumentação no fonte não implica um botão visível |
+**SHA-256 do certificado**
 
-## Arquitetura e execução do jogo
+```text
+1b4b528b92aa1ea13753798cbb701d66589333f7b2d8afb3a750aa1c83642c29
+```
+
+Esses valores pertencem ao arquivo gerado desta versão. Uma compilação diferente terá outro hash; uma chave diferente também mudará o certificado. O APK é distribuído separadamente do código deste repositório.
+
+</details>
+
+## Requisitos
+
+| Item | Requisito da distribuição atual |
+| --- | --- |
+| Android | **7.0 ou superior**, API 24+ |
+| Sistema e processador | **ARM64**, com Android de 64 bits |
+| Portal | WebView funcional, com JavaScript e cookies |
+| Conexão | Acesso ao portal, autenticação, CDN e servidor do jogo |
+| Conta | Conta válida aceita pelo portal |
+| Renderização | Compatibilidade com AIR mobile e os drivers utilizados |
+| Tela | Uso em paisagem |
+| Armazenamento | Espaço para APK, instalação do runtime e dados/cache da sessão |
+
+O alvo declarado no manifesto é API 35. O mínimo de instalação continua sendo API 24: `targetSdkVersion` e `minSdkVersion` têm funções diferentes.
+
+**Um processador ARM64 com Android de 32 bits não atende ao requisito.** Esta distribuição não inclui ARMv7, x86 ou x86_64. O nome `RealmeC71` nos arquivos vem do desenvolvimento e não limita o aplicativo a esse modelo.
+
+### Memória e desempenho
+
+Ainda não há uma matriz de aparelhos que permita indicar um mínimo confiável de RAM, CPU ou GPU. A quantidade de memória disponível, o driver, a resolução, a temperatura e a cena carregada alteram o resultado. O tamanho de 12,18 MiB do APK também não representa a ocupação total depois da instalação.
+
+O cache estático próprio pode ocupar até **64 MiB**. WebView, texturas, objetos SWF e outros dados da sessão têm consumo separado.
+
+### FSR opcional
+
+O caminho FSR exige **OpenGL ES 3.0** e EGL14 compatíveis. A integração limita a saída a **8.388.608 pixels** e respeita o tamanho máximo de textura informado pela GPU. Se a saída experimental não iniciar ou perder as condições necessárias, o aplicativo retorna ao caminho AIR.
+
+### Compatibilidade conhecida
+
+| Plataforma | Situação |
+| --- | --- |
+| Android usado durante o desenvolvimento | Entrada no jogo e controles relatados pelo usuário; sem benchmark completo |
+| Outros Android ARM64 / API 24+ | Atendem às restrições do pacote; precisam de verificação de funcionamento |
+| Android abaixo de 7.0 ou sistema ARM de 32 bits | Fora dos requisitos deste APK |
+| Emuladores x86/x86_64 | Sem distribuição específica; tradução ARM não validada |
+| iPhone e iPad | Sem versão neste projeto |
+| Windows | Magpie e o pacote Kaguya original usam outro caminho de execução |
+
+## Controles
+
+O painel **CONTROLES** concentra a entrada e os ajustes do aplicativo. Seu botão pode ser arrastado; a posição fica salva.
+
+| Comando | Uso |
+| --- | --- |
+| **MOUSE** | Ativa o cursor e o touchpad virtual |
+| **SEGURAR** | Mantém o botão pressionado para arrastar |
+| **CLIQUE** | Mostra uma marca visual no ponto do toque/clique |
+| **TECLADO** | Abre a entrada Android para o campo selecionado |
+| **ENTER / ESC / TAB** | Envia o atalho correspondente ao cliente |
+| **REINICIAR / SERVIDORES** | Encerra o cliente atual e retorna ao fluxo de acesso |
+| **TROCAR CONTA** | Inicia o fluxo de troca sem conservar o cliente anterior |
+| **IMAGEM / FPS** | Abre meta de FPS, FSR, contador e opções Kaguya |
+| **SOM / TESTAR SOM** | Controla o volume do aplicativo e testa a saída local |
+| **RECARGA OFICIAL** | Abre a página oficial da sessão atual |
+
+Para digitar, toque primeiro no campo do jogo e depois use TECLADO. O foco precisa estar no campo certo para receber o texto ou os atalhos.
+
+O contador pode ficar em qualquer canto ou ser ocultado. Os controles pertencem à interface do aplicativo; não exigem uma janela flutuante sobre outros apps. Os botões LOG/DIAG foram retirados da interface de produção.
+
+## Gráficos e desempenho
+
+### 60 FPS como padrão
+
+O perfil solicita **60 FPS** ao Stage. As opções de **90**, **120** e **máxima da tela** dependem de escolha explícita. A preferência define a cadência pedida ao runtime; CPU, GPU, tela e custo da cena determinam o resultado.
+
+| Medida | O que representa |
+| --- | --- |
+| Meta de FPS | Cadência solicitada ao Stage |
+| Contador AIR | Frequência observada dos eventos `ENTER_FRAME` |
+| Swap/saída FSR | Apresentações feitas pelo caminho gráfico experimental |
+
+O HUD ajuda a comparar sessões, mas não conta necessariamente imagens visuais diferentes apresentadas na tela. Para medir fluidez e quedas, também é preciso observar frame time e apresentação no Android.
+
+### A sensação de velocidade em 2×
+
+Parte do cliente Flash pode avançar por frame script. Ao passar de uma cadência próxima de 30 para 60, essas animações podem acelerar. A lógica e a apresentação ainda não foram separadas de forma geral nesta adaptação.
+
+Essa aceleração pode aparecer mesmo quando não há interpolação de imagem. Uma futura correção de velocidade precisa considerar relógios, temporizadores e animações do cliente, preservando a comunicação com o servidor.
+
+### Perfil de imagem
+
+O perfil utiliza qualidade AIR `medium`, contraste moderado e tenta aplicar **80% da largura e da altura internas**, com ampliação da saída. Quando essa escala funciona, a superfície contém cerca de **64% dos pixels** da resolução inteira.
+
+A redução pode aliviar o custo de renderização, mas não corresponde a um ganho automático de 36% em FPS. O carregamento, a execução AVM2, o áudio e a composição continuam consumindo recursos. As coordenadas de toque acompanham a superfície efetivamente aplicada.
+
+### Carregamento com menos pressão
+
+A fila de SWFs utiliza dois downloads simultâneos e importa um módulo por `ENTER_FRAME`. Um frame acima do orçamento pode adiar a importação por um intervalo limitado. A marca de **8 MiB** na fila de bytes reduz a abertura de novas cargas, e o processamento pausa no segundo plano.
+
+Essa marca é um controle de pressão, não um limite absoluto de RAM. Downloads já iniciados podem terminar depois dela, e a importação nativa de um SWF ainda pode ocupar um frame inteiro. Cenas pesadas continuam exigindo medição no aparelho.
+
+## FSR, DLSS e Magpie
+
+### A integração disponível
+
+O aplicativo possui **AMD FidelityFX Super Resolution 1**, experimental e opcional. Os kernels FP32 foram adaptados para **OpenGL ES 3.0**, com dois passes espaciais:
+
+| Passe | Função |
+| --- | --- |
+| **EASU** | Reconstrução/ampliação da imagem de menor resolução, considerando bordas |
+| **RCAS** | Nitidez adaptativa sobre a imagem ampliada |
+
+O hook entra antes do swap EGL14 do AIR. A integração copia o framebuffer na GPU, executa os passes e apresenta a saída em outra Surface no contexto previsto. O caminho de produção usa operações GPU e não depende de capturas por `glReadPixels`.
+
+O renderer guarda e restaura estado GL/EGL, libera a saída ao voltar ao portal, abrir a recarga ou pausar e conserva um caminho de retorno à renderização AIR. O FSR começa **desligado a cada abertura**, sem tornar sua ativação um requisito para entrar no jogo.
+
+### Geração de quadros
+
+FSR 1 trabalha sobre a imagem existente. A integração atual **não gera quadros intermediários** e não recebe um pipeline geral de profundidade, vetores de movimento ou separação de HUD do cliente Flash.
+
+Uma implementação temporal ou de frame generation exigiria histórico, sincronização, tratamento de artefatos e medidas de latência e custo. Aumentar o contador, repetir o framebuffer ou acelerar frame scripts não resolve essas exigências.
+
+**DLSS não está integrado.** A ponte AIR Android não possui uma biblioteca DLSS executável para esse caminho. **Magpie** é um projeto de Windows; suas referências servem como estudo de filtros e apresentação, sem um componente Magpie incorporado ao APK.
+
+### O que já foi medido
+
+Os shaders foram compilados e executados em **Mesa llvmpipe**, incluindo amostragem, cores, orientação e cópia GPU. Esse resultado verifica operações naquele ambiente de software. Ainda não há benchmark publicado do FSR deste aplicativo em Adreno, Mali ou outra GPU Android.
+
+Os passes e a composição têm custo. Se o FSR piorar a fluidez ou a imagem, desligue a opção e compare com a saída AIR nas mesmas condições.
+
+[Proveniência](fsr/PROVENANCE.json) · [Licença AMD](fsr/NOTICE.txt) · [Estado da geração de quadros](FRAME_GENERATION_STATUS.md) · [Referências Magpie](MAGPIE_STATUS.md)
+
+## Kaguya
+
+O port utiliza parte dos recursos do pacote `Naruto_Kaguya_Remaster_Portable.zip` recebido durante o desenvolvimento. As instruções originais indicam **Herrington Kaguya** como autor. Os executáveis Windows do pacote não são executados nem incluídos na adaptação Android.
+
+| Conteúdo | Subconjunto integrado |
+| --- | --- |
+| Estilos | Vento, Fogo, Raio, Água e Terra |
+| Retratos | 10 PNGs: dois por estilo, nas dimensões 176×68 e 45×45 |
+| Mapeamento | IDs `10000101` a `10000501`, aparência `1`, em caminhos reconhecidos |
+| Efeitos de áudio | 15 SWFs com exportação `s1` |
+| Preferências | Ativação e estilo salvos |
+| Recursos restantes | Retorno ao transporte oficial |
+
+Os sons atendidos são `s1754`, `s1790`, `s1791`, `s1792`, `s17661` a `s17670` e `s17676`. Cada substituição usa o nome que o próprio cliente solicita. O manifesto registra origem e SHA-256 dos arquivos.
+
+O mod é cosmético. Escolher um estilo no painel não troca a classe, os atributos ou o inventário mantidos pelo servidor.
+
+### Alcance do material recebido
+
+As pastas grandes **BGM** e **Animation effect** já estavam ausentes no pacote usado como origem. O subconjunto Android, portanto, não inclui uma trilha Kaguya completa nem todas as interfaces, personagens e animações do remaster Windows.
+
+O repositório contém roteamento, controles, testes e manifesto. Os **25 arquivos de mídia** são dependências separadas e não foram republicados aqui. Para testar ou empacotar esse conteúdo, é necessária uma cópia autorizada nos caminhos previstos.
+
+As instruções do pacote original indicam gratuidade e proíbem obter benefícios com o software. A licença MIT da camada mobile não muda essas condições.
+
+[Detalhes do port](KAGUYA_STATUS.md) · [Manifesto](mods/kaguya/manifest.json) · [Direitos de terceiros](THIRD_PARTY_NOTICES.md)
+
+## Áudio
+
+Os sons embutidos precisam conservar a ligação entre os dados `DefineSound`, a exportação `SymbolClass` e a classe Sound do runtime. A **1.3.17 preserva essa ligação** e mantém `Sound` nativo nos tipos, casts e superclasses.
+
+`BrowserSound` resolve as URLs de construções externas estáticas reconhecidas. Continua sendo uma subclasse do Sound nativo e conserva canais, posição, repetições, `SoundTransform` e eventos. Expressões dinâmicas ou ambíguas permanecem no caminho nativo.
+
+Quando um novo índice de bytecode amplia um operando, o adaptador recalcula os desvios, switches e limites dos handlers. A fixture de áudio e o parser independente verificam esse resultado. Os 15 SWFs Kaguya também são comparados byte a byte antes e depois da adaptação.
+
+### Conferir a saída no celular
+
+1. Ative **SOM: ON** no painel.
+2. Confira o **volume de mídia** do Android e a saída de áudio selecionada.
+3. Use **TESTAR SOM**. Ele envia um tom PCM curto, baixo, sem depender de rede ou do mod.
+4. Confira música e efeitos nas configurações internas do jogo.
+
+O aplicativo salva SOM ON/OFF, reaplica o estado ao retornar do segundo plano e encerra os canais ao abandonar o cliente. O teste local ajuda a separar problemas de saída de mídia daqueles ligados a recursos ou categorias do jogo.
+
+Os MP3 analisados foram decodificados para PCM não silencioso. A integridade dos arquivos e a adaptação foram verificadas; **a reprodução final da 1.3.17 em Android ainda não foi confirmada nesta validação**.
+
+## Arquitetura
+
+A WebView cuida do portal. O AIR executa o cliente. Entre eles, a camada própria transporta os parâmetros de lançamento e adapta recursos e entrada para o ambiente mobile.
 
 ```mermaid
 flowchart TD
-    A["WebView: conta e servidor"] --> B["Captura de entry.swf e parâmetros"]
-    B --> C["AIR / AVM2 no aparelho"]
-    C --> D["Proxy local de recursos"]
-    D --> E["CDN oficial e cache elegível"]
-    C --> F["Socket do servidor do jogo"]
-    C --> G["Controles e áudio nativos"]
-    C --> H["Saída AIR e FSR opcional"]
+    Portal["Portal BR · WebView"] --> Entrada["entry.swf e parâmetros da sessão"]
+    Entrada --> Cliente["Cliente · AIR / AVM2"]
+    Cliente --> Recursos["Transporte local e cache"]
+    Recursos --> CDN["CDN do jogo"]
+    CDN --> Recursos
+    Cliente <--> Servidor["Servidor do jogo · socket"]
+    Controles["Toque, mouse e teclado"] --> Cliente
+    Cliente --> Imagem["Saída AIR · FSR opcional"]
 ```
 
-### 1. Portal e sessão
+### Lançamento
 
-A WebView apresenta o portal e participa do fluxo de login. A camada mobile conserva a sessão e aceita a janela do jogo quando o portal abre o servidor em popup. O cliente só deve iniciar depois de identificar a URL versionada real do SWF; um placeholder genérico `/entry.swf` não é prova de que o cliente final foi resolvido.
+A ponte identifica a URL versionada real de `entry.swf` e conserva FlashVars e parâmetros de URL. O popup usado pelo portal para abrir o servidor faz parte desse fluxo.
 
-Os parâmetros de URL e FlashVars são transportados para o ambiente AIR. A camada de lançamento evita depender da URL dinâmica `app:/.../[[DYNAMIC]]/...` para resolver recursos relativos, pois essa URL não representa o diretório do cliente no CDN.
+Uma entrada genérica `/entry.swf` ainda não identifica o diretório correto do cliente. Da mesma forma, a URL dinâmica `app:/.../[[DYNAMIC]]/...` criada por `loadBytes` não serve de base para encontrar arquivos no CDN.
 
-### 2. Proxy local
+### Adaptação de SWF e ABC
 
-O aplicativo abre um servidor HTTP em **loopback `127.0.0.1`**, com porta escolhida durante a execução. O cliente solicita recursos por essa origem local e a ponte resolve os caminhos permitidos para o transporte remoto ou para a substituição cosmética local.
+`EntryCompatibility` examina o SWF e encaminha referências específicas de navegador para os adaptadores próprios. Essa camada cobre Security, Loader, URLLoader, URLStream, ExternalInterface, Socket e a verificação de suporte ao menu desktop.
 
-Esse proxy fica dentro do aparelho. Ele não significa que o jogo é executado em uma máquina remota, não fornece um proxy público e não é uma promessa de contornar bloqueios do portal. A porta muda entre sessões e não deve ser gravada como endpoint permanente.
+`SoundConstructorCompatibility` trata apenas as construções externas reconhecidas de Sound. Os tipos e símbolos de áudio embutido permanecem nativos.
 
-### 3. Adaptação de SWF
+O cliente é importado por `loadBytes` com o contexto e a permissão de código configurados. Uma inicialização de SWF pode ocorrer antes de terminar o download de configurações, texturas e dados de jogo.
 
-`EntryCompatibility` examina o SWF e referências no bytecode ABC. Referências específicas de navegador são encaminhadas para classes compatíveis com o ambiente AIR, incluindo carregadores, resolução de recursos, ExternalInterface, Security, menus, sockets e som.
+### Encerramento e retomada
 
-O cliente continua contendo seu bytecode e recursos originais, sujeitos aos direitos de seus titulares. A finalidade dos adaptadores é permitir execução no ambiente mobile, não substituir autenticação, inventário, combate ou regras do servidor.
+Trocar conta ou servidor encerra o cliente anterior: downloads, sockets, áudio, callbacks e objetos montados no Stage são descartados. Eventos atrasados da sessão antiga precisam permanecer sem efeito sobre a sessão nova.
 
-O carregamento usa `loadBytes` com importação de código no contexto configurado. SWF inicializado não significa que o jogo já terminou de baixar configurações, plugins, texturas ou dados do servidor.
+Na retomada, a saída gráfica, o foco e a fila de importação são reavaliados. A existência de uma Surface antes da pausa não garante que ela continue válida depois dela.
 
-### 4. Ciclo de vida
+## Rede e cache
 
-Ao trocar conta/servidor ou encerrar o cliente, a camada mobile precisa interromper downloads pendentes, fechar conexões, retirar objetos antigos do Stage e encerrar áudio. O estado antigo não pode continuar respondendo a eventos depois que uma sessão nova passa a ser ativa.
+O transporte HTTP local escuta em **loopback `127.0.0.1`**, com porta escolhida durante a execução. Ele recebe os caminhos do cliente e resolve recursos para o CDN, cache elegível ou substituições locais do mod.
 
-O retorno do segundo plano também exige cuidados: Surface, foco, fila de importação e saída FSR não devem ser considerados válidos apenas porque existiam antes de pausar o aplicativo.
+A porta pertence àquela sessão. Não é um endpoint fixo nem um serviço público de proxy. O jogo continua sendo executado no aparelho.
 
-## FPS, fluidez, cores e upscaling
+### Regras do cache
 
-### Meta de 60 FPS não é garantia de 60 imagens novas
-
-O perfil pede `Stage.frameRate=60` como padrão. Uma preferência explícita permite 90, 120 ou a taxa máxima selecionável da tela. A rotina também procura corrigir alterações de limite feitas pelo cliente, mas não cria capacidade de CPU/GPU que o aparelho não possui.
-
-Há pelo menos três medidas diferentes:
-
-| Medida | Significado | O que não prova |
-| --- | --- | --- |
-| FPS alvo | Cadência solicitada ao Stage | Que o aparelho sustentou essa taxa |
-| FPS AIR do HUD | Frequência observada de callbacks `ENTER_FRAME` | Que cada callback gerou uma imagem visual nova ou foi apresentado fisicamente |
-| Saídas/swap FSR | Chamadas processadas/apresentadas pelo caminho FSR | Quadros intermediários, simulação nova ou benchmark do compositor Android |
-
-Um contador de 60, 90 ou 120 sozinho não certifica fluidez real. Medidas de frame time e apresentação no aparelho são necessárias para caracterizar quedas, repetições e latência.
-
-### Por que o jogo pode parecer em 2×
-
-Partes do cliente Flash podem avançar por frame script em vez de tempo decorrido. Aumentar a cadência de aproximadamente 30 para 60 pode acelerar essas partes. O projeto ainda não separa de forma geral os ticks da lógica da apresentação.
-
-Preservar essa sensação de aceleração não equivale a produzir quadros extras por interpolação. Corrigir a velocidade exigiria identificar relógios, temporizadores, animações e dependências do cliente, preservando o protocolo de rede.
-
-### Perfil visual atual
-
-O perfil mantém qualidade AIR `medium`, contraste moderado e tenta usar largura e altura internas a **80%** da saída. Quando essa redução se aplica, a área de pixels cai para `0,8 × 0,8 = 64%`, uma redução de aproximadamente **36%** na quantidade de pixels da superfície. Isso não é uma promessa de 36% a mais de FPS: bytecode, rede, áudio, importação e composição também custam tempo.
-
-As coordenadas de entrada devem acompanhar a superfície efetivamente aplicada. O aplicativo não deve ampliar a imagem e continuar tratando toques como se não houvesse escala. Caminhos incompatíveis, incluindo particularidades de Stage3D/superfície, precisam conservar a saída funcional do cliente.
-
-### Medidas de estabilidade já presentes
-
-- Dois downloads de SWF simultâneos, evitando disparar todas as importações juntas.
-- Importação de um SWF por `ENTER_FRAME`, com adiamento limitado quando o frame anterior está acima do orçamento.
-- Marca de pressão de 8 MiB na fila de bytes para reduzir a abertura de novas cargas.
-- Pausa de processamento da fila no segundo plano.
-- Cache estático limitado para diminuir transferências repetidas elegíveis.
-- Limpeza de recursos e áudio ao abandonar uma sessão.
-- FSR fora do caminho padrão, com retorno à saída AIR quando falha.
-
-A marca de 8 MiB não é um teto absoluto de memória: downloads já iniciados podem terminar depois dela. A importação nativa de um SWF também pode bloquear um frame; ela não se torna interrompível por ser colocada em fila. Por isso, cenas pesadas ainda podem apresentar quedas.
-
-## FSR, DLSS e geração de quadros
-
-### O que foi implementado
-
-A base utiliza kernels FP32 do **AMD FidelityFX Super Resolution 1**, com wrappers para **OpenGL ES 3.0**. São dois passes espaciais:
-
-1. **EASU** reconstrói/amplia a imagem de menor resolução considerando bordas.
-2. **RCAS** aplica nitidez adaptativa à saída ampliada.
-
-O hook ocorre antes do swap EGL14 do AIR. O caminho copia o framebuffer na GPU, processa os passes e apresenta a saída em outra Surface usando o contexto previsto pela integração. O caminho de produção não depende de capturar screenshots e processá-las na CPU.
-
-O estado GL/EGL precisa ser restaurado ao retornar ao AIR. O swap original é preservado. Há tratamento de ausência de saída, recursos inválidos e destruição de superfície; após aproximadamente quatro segundos sem início de frames FSR, a rotina oferece fallback.
-
-### O que não foi implementado
-
-| Tecnologia | Situação |
-| --- | --- |
-| Ampliação básica de superfície | Presente no perfil mobile |
-| FSR 1 EASU/RCAS | Presente, opcional e experimental |
-| FSR temporal / FSR 2 | Não implementado |
-| FSR Frame Generation | Não implementado |
-| Interpolação por fluxo óptico | Não implementada |
-| DLSS, incluindo geração de quadros | Não implementado |
-| Magpie Windows dentro do APK | Não incorporado |
-| Quadros duplicados para inflar o HUD | Não utilizados como recurso de desempenho |
-
-FSR 1 trabalha sobre uma imagem existente. Ele não acrescenta estados novos da simulação nem fornece vetores de movimento ou profundidade. O hook de framebuffer não torna disponíveis automaticamente os dados que uma integração temporal exige.
-
-O cliente Flash não expõe à ponte atual um pipeline geral de profundidade, vetores de movimento e tratamento separado de HUD. Uma geração de quadros séria exigiria outra implementação, histórico, sincronização, avaliação de artefatos, latência e custo de GPU.
-
-DLSS depende de integrações e hardware do ecossistema NVIDIA; não há biblioteca DLSS executável disponível nesta ponte AIR Android. Magpie é um projeto de Windows e seus filtros não tornam seu executável utilizável como um componente Android.
-
-### Validação e custo
-
-Os shaders foram compilados e executados em **Mesa llvmpipe**, um backend de software, incluindo comparação do adaptador de amostragem, cores constantes, orientação e cópia GPU. Isso testa resultados e operações do shader naquele ambiente; **não mede desempenho em uma GPU Android**.
-
-Não há benchmark publicado deste FSR em Adreno, Mali ou outras GPUs de celular. EASU, RCAS, texturas e composição têm custo: a opção pode melhorar a aparência e reduzir FPS. Ela começa desligada a cada abertura para evitar transformar um caminho experimental em requisito de acesso ao jogo.
-
-Proveniência: [fsr/PROVENANCE.json](fsr/PROVENANCE.json). Licença AMD: [fsr/NOTICE.txt](fsr/NOTICE.txt). Detalhes: [FRAME_GENERATION_STATUS.md](FRAME_GENERATION_STATUS.md) e [MAGPIE_STATUS.md](MAGPIE_STATUS.md).
-
-## Kaguya: alcance do port
-
-O material de origem foi o pacote `Naruto_Kaguya_Remaster_Portable.zip`, fornecido durante o desenvolvimento. As instruções indicam **Herrington Kaguya** como autor. O port mobile reutiliza um subconjunto conhecido de recursos, sem executar ou incluir os programas Windows do pacote original.
-
-### Subconjunto integrado na distribuição com os assets
-
-| Tipo | Quantidade/alcance | Limite |
-| --- | --- | --- |
-| Estilos | Vento, Fogo, Raio, Água e Terra | Escolha cosmética; não troca a classe no servidor |
-| Retratos PNG | 10: dois por estilo, 176×68 e 45×45 | Apenas caminhos e aparências explicitamente reconhecidos |
-| IDs atendidos | `10000101` a `10000501`, aparência `1` | Não é uma substituição geral de todos os ninjas |
-| Sons SWF | 15, com exportação `s1` | Substituição apenas do mesmo nome solicitado pelo cliente |
-| Preferências | Ativação e estilo salvos | Retorno ao transporte oficial em recursos não atendidos |
-
-Os nomes dos sons são `s1754`, `s1790`, `s1791`, `s1792`, `s17661` a `s17670` e `s17676`. O manifesto registra origem e SHA-256 de cada recurso.
-
-As pastas grandes **BGM/Animation effect já estavam ausentes no pacote recebido**. Portanto, este port não entrega uma trilha completa Kaguya. Outros SWF antigos, interfaces, personagens, imagens e animações do remaster não foram integrados de forma geral ao cliente BR atual.
-
-### Código público versus mídia do mod
-
-O repositório publica o roteador, controles, testes e manifesto. **Os 25 arquivos de mídia do mod não são republicados nesta abertura de código**, porque a licença da camada própria não concede direitos sobre eles. Testes e empacotamento que dependem desses arquivos exigem uma cópia autorizada no caminho correspondente.
-
-O ReadMe original indica gratuidade e proíbe obter benefícios com o software. Esses termos não são substituídos por MIT. O APK e o material do mod precisam respeitar as condições dos respectivos titulares. Consulte [KAGUYA_STATUS.md](KAGUYA_STATUS.md) e [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-O mod não altera saldo, servidor, conta, inventário ou regras de combate.
-
-## Música, efeitos e áudio
-
-A **1.3.17 corrige a regressão de tipos de áudio introduzida na 1.3.16**. A troca global de `flash.media.Sound` também atingia superclasses, assinaturas e conversões dos sons embutidos. Agora esses usos continuam apontando para o **Sound nativo**, preservando a ligação entre `DefineSound`, `SymbolClass` e a classe exportada de cada arquivo.
-
-Somente expressões estáticas pareadas de `new Sound(...)` recebem `BrowserSound`, que resolve URLs externas pelo transporte já validado. O objeto continua sendo uma subclasse de Sound, mantendo canais, parâmetros de reprodução, loops e eventos nativos. Referências dinâmicas ou expressões ambíguas permanecem nativas. O adaptador não reescreve casts, `is Sound`, retornos, tipos de variáveis nem superclasses. Quando um índice novo alarga um operando, os desvios, switches e limites de handlers são recalculados e verificados por um parser independente.
-
-`AudioSession` usa a saída **MEDIA**, oferece **SOM ON/OFF** persistido e encerra canais/streams ao abandonar o cliente. Ao retornar do segundo plano, reaplica o estado de áudio escolhido. **TESTAR SOM** envia um tom PCM curto e baixo pelo Sound nativo, sem rede ou mod. O volume de mídia do Android e as categorias de música/efeitos das configurações do jogo continuam relevantes.
-
-Os **15 arquivos SWF de áudio reais do Kaguya passam pelo adaptador sem alteração de um único byte**. A verificação independente confirma superclasse Sound nativa, MP3, amostras, símbolos e construtores. Uma fixture compilada verifica seis construções externas, casts nativos e realocação de desvios/handlers com operandos alargados. Os testes gerais de rede, controles, portal e gráficos também passaram.
-
-**Limite da validação:** não houve reprodução audível no Realme ou em outro Android nesta execução. Os testes confirmam a correção no código e a integridade dos arquivos; a saída final precisa ser confirmada no aparelho. O subconjunto Kaguya contém os efeitos descritos no manifesto; isso não comprova a presença de uma trilha musical adicional no pacote.
-
-## Rede, cache e carregamento
-
-### Transporte e proteção contra caminhos errados
-
-O transporte resolve recursos a partir da base correta do cliente e restringe operações/caminhos esperados. Uma requisição para `app:/resource.cfg` ou para um diretório raiz errado não é equivalente ao arquivo versionado no CDN. Esse cuidado foi necessário para evitar 404 e falhas de inicialização nos adaptadores.
-
-Há compatibilidade com endpoints legados do jogo que utilizam HTTP. O manifest permite tráfego claro; portanto, não é correto descrever toda a comunicação do aplicativo como HTTPS de ponta a ponta.
-
-### Cache estático próprio
-
-| Regra | Valor/condição |
+| Regra | Valor ou condição |
 | --- | --- |
 | Orçamento total | 64 MiB |
-| Limite de arquivos | 512 |
-| Máximo por recurso cacheado | 8 MiB |
-| TTL máximo | Uma hora, limitado pelas condições de cache |
-| Candidatos | PNG/JPEG/SWF elegíveis em caminhos versionados |
-| Resposta | GET 200, tamanho positivo, tipo válido e política apropriada |
-| Exclusões | Consultas, Range, Set-Cookie, Vary, private/no-store e respostas comprimidas não elegíveis |
+| Quantidade máxima | 512 arquivos |
+| Tamanho por arquivo | Até 8 MiB |
+| TTL máximo | Uma hora, limitado pela política de cache |
+| Conteúdo candidato | PNG, JPEG e SWF em caminhos versionados |
+| Resposta elegível | GET 200, tamanho positivo, tipo e política apropriados |
+| Exclusões | Query, Range, Set-Cookie, Vary, private/no-store e compressões não elegíveis |
 
-Substituições do mod são avaliadas antes do cache e não devem contaminar os recursos oficiais. O Android pode remover arquivos de cache. Configurações de sessão e respostas personalizadas não devem ser tratadas como mídia estática compartilhável.
+As substituições Kaguya são avaliadas antes do cache, evitando misturar o mod com arquivos oficiais. O Android pode remover o cache; ele não é uma cópia completa do CDN.
 
-Esse cache reduz transferências repetidas em casos elegíveis; não permite jogar offline e não representa um espelho completo do CDN.
+### Comunicação do jogo
 
-### Conexão com o servidor
+`BrowserSocket` conserva os bytes e operações de flush usados pelo cliente. Os diagnósticos podem contar conexão, envio e recebimento sem alterar o protocolo.
 
-`BrowserSocket` mantém o transporte nativo, bytes e flush utilizados pelo cliente. A instrumentação pode contar conexão, envio e recebimento, mas não inventa pacotes para forçar avanço do carregamento.
+Uma conexão aberta, sozinha, não confirma uma resposta útil do servidor. Para investigar um carregamento parado, é preciso relacionar sessão, primeira transmissão, flush, dados recebidos e recurso pendente.
 
-Socket conectado não prova que houve resposta útil. Um travamento em 14% acompanhado de conexão aberta e zero bytes recebidos é um indício de espera na comunicação/etapa seguinte; não basta para afirmar qual lado falhou. Endereço, sessão, primeiro envio, flush e recebimento precisam ser verificados preservando o protocolo original.
+Alguns endpoints legados utilizam HTTP, e o manifesto permite esse tráfego. A comunicação do conjunto não deve ser descrita como HTTPS integral.
 
-## Contas, servidores e recarga
+## Contas e recarga
 
-### Conta salva
+### Sessão salva
 
-Cookies e armazenamento do portal podem manter uma conta entre aberturas. Isso é diferente de criar automaticamente um convidado. O fluxo atual deve apresentar acesso e seleção sem substituir a intenção do usuário por uma conta temporária criada silenciosamente.
+Cookies e armazenamento do portal podem conservar o login entre aberturas. O acesso usa a conta aceita pelo portal; a seleção de servidor permanece manual.
 
-Ao trocar de conta ou servidor, objetos, conexões e callbacks do cliente anterior devem ser descartados. Um evento atrasado da sessão antiga não deve iniciar o mesmo servidor por cima da seleção nova.
+A troca descarta o cliente já carregado. Assim, callbacks e conexões anteriores não devem reabrir uma sessão antiga durante a nova seleção.
 
-### Recarga
+### Recarga oficial
 
-A opção de recarga abre o fluxo oficial usando identificadores disponíveis na sessão atual, como usuário e servidor. O projeto não recebe automaticamente pagamentos, não cria saldo e não altera preços do portal.
+O comando abre o fluxo oficial com os identificadores disponíveis na sessão, incluindo usuário e servidor. O aplicativo não realiza compras automaticamente. Confira a conta e o servidor exibidos na página antes de concluir uma transação.
 
-A abertura da página e a identificação da sessão são distintas da validação de uma compra real. O checkout completo e os meios de pagamento não foram certificados nesta validação. Confira conta e servidor exibidos no portal antes de concluir uma transação por sua própria ação.
+O checkout e os meios de pagamento não foram certificados nesta validação. A abertura da página é uma etapa distinta da conclusão de uma compra.
 
-### Bloqueio do portal
+### Portal sem resposta ou bloqueado
 
-O classificador de bloqueio inspeciona o documento principal dos hosts oficiais previstos. Há recarregamento manual limitado a uma tentativa por minuto nas condições de bloqueio/desafio e opção de abrir o portal público no navegador mediante toque.
+A camada de acesso classifica bloqueios e desafios no documento principal dos hosts previstos. O recarregamento manual é limitado a uma tentativa por minuto nas condições atendidas; a abertura do portal público no navegador depende de toque.
 
-Uma recuperação de login sem avanço pode realizar uma tentativa limitada após aproximadamente 45 segundos, considerando o estado da navegação/sessão. Não é um laço infinito de login ou recarga.
+A recuperação de login também pode fazer uma tentativa limitada após cerca de 45 segundos, conforme o estado da navegação. Esses caminhos auxiliam a retomada local. As regras de acesso, bloqueio e proteção continuam pertencendo ao serviço remoto.
 
-**O aplicativo não remove regras de Cloudflare e não garante acesso quando o site bloqueia a rede ou a sessão.** Mostrar “Sorry, you have been blocked” continua sendo uma resposta do serviço remoto. A recuperação local não deve ser anunciada como bypass.
+## Privacidade e permissões
 
-## Segurança, privacidade e permissões
-
-### Permissões declaradas pelo aplicativo
-
-| Permissão | Finalidade |
+| Permissão declarada | Finalidade |
 | --- | --- |
-| `android.permission.INTERNET` | Portal, autenticação, recursos e comunicação com o jogo |
-| `android.permission.ACCESS_NETWORK_STATE` | Consulta do estado de conectividade |
+| `INTERNET` | Portal, autenticação, recursos e conexão do jogo |
+| `ACCESS_NETWORK_STATE` | Consulta da conectividade |
 
-O descritor não solicita contatos, SMS, microfone, acessibilidade, root ou permissão de desenhar sobre outros aplicativos. O botão flutuante pertence à interface do próprio aplicativo.
+O descritor não solicita contatos, SMS, microfone, acessibilidade, root ou permissão para desenhar sobre outros aplicativos. Também declara `allowBackup=false`, aceleração de hardware e permissão de tráfego HTTP legado.
 
-O manifest também declara `allowBackup=false`, aceleração de hardware e `usesCleartextTraffic=true`. Isso não substitui uma auditoria completa do runtime incorporado ou de todos os endpoints utilizados pelo jogo.
+O aplicativo usa cookies, parâmetros de sessão e preferências locais. O portal e o cliente podem ter serviços, telemetria e políticas próprios. A avaliação de privacidade precisa considerar esses componentes externos e o runtime incorporado.
 
-### Dados e serviços externos
+### Ao compartilhar um diagnóstico
 
-O cliente lida com cookies, parâmetros de sessão e preferências locais. O portal e o jogo podem carregar telemetria, conteúdo ou integrações externas próprios. As políticas desses serviços continuam aplicáveis; o código mobile não transforma esses fornecedores em serviços do mantenedor.
+Remova senhas, cookies, tokens, e-mails de conta e parâmetros de autenticação. Revise prints e logs mesmo quando a instrumentação mascara valores conhecidos. Chaves privadas e senhas de assinatura devem permanecer fora do repositório.
 
-Não publique cookies, senhas, tokens, e-mails de contas ou parâmetros completos de autenticação em issues. Mesmo quando um logger mascara valores conhecidos, revise qualquer diagnóstico antes de compartilhá-lo.
+### Assinatura e Play Protect
 
-O loopback é uma origem interna do aplicativo. Tráfego HTTP legado, carregamento de código externo e dependências proprietárias são pontos que devem permanecer visíveis na análise técnica.
+O APK 1.3.17 passou pela verificação de assinatura v2. Isso permite conferir a integridade e o certificado daquele arquivo; não substitui uma auditoria de todos os componentes.
 
-### Play Protect e assinatura
+A distribuição fora da Play Store pode exibir avisos sobre desenvolvedor desconhecido. Não há garantia de que mudar nome, ícone ou recompilar retire esses avisos. Confira a origem do APK e a mensagem exibida pelo Android ao avaliar a instalação.
 
-O aviso de que o Play Protect nunca viu um aplicativo desse desenvolvedor não constitui, sozinho, um diagnóstico de malware nem uma certificação de segurança. Assinatura válida comprova integridade/identidade conforme a cadeia usada; não comprova ausência de vulnerabilidades em todo o produto.
+## Código público
 
-Não há garantia de que alterar nome, ícone, target SDK ou recompilar elimine alertas. Este projeto não recomenda desativar a proteção do aparelho. Consulte a origem do APK e as orientações oficiais do Android/Google ao avaliar um alerta.
+A licença MIT cobre a **camada própria publicada**. O repositório permite estudar, revisar e modificar a adaptação mobile, respeitando as atribuições dos componentes externos.
 
-## O que está aberto e o que falta
+| Componente | Disponibilidade |
+| --- | --- |
+| Bootstrap e adaptadores ActionScript | Código-fonte público, MIT |
+| Transporte, cache e adaptação SWF/ABC | Código-fonte público, MIT |
+| Extensões próprias da ponte Android e controles | Código-fonte público, MIT |
+| Wrappers GLES e compositor experimental | Código-fonte público, com atribuição AMD quando aplicável |
+| Headers e kernels AMD FSR 1 | Publicados com aviso e licença MIT da AMD |
+| Scripts, fixtures, stubs e testes próprios | Código-fonte público |
+| Ponte histórica `PortalContext` | Fonte original indisponível; dependência de `portal.jar` autorizado |
+| AIR SDK e runtime | Dependências externas sob seus termos |
+| Cliente SWF, mídia e servidores do jogo | Componentes de terceiros, fora do repositório |
+| Kaguya | Manifesto e roteamento publicados; mídia separada |
+| Certificado privado e senha | Não publicados |
 
-**Open code neste projeto significa código público da camada própria.** A licença MIT foi aplicada a essa camada nesta publicação; ela não abrange automaticamente todos os bytes do APK.
+**O clone público ainda não reconstrói sozinho o APK completo.** O pipeline depende do SDK externo, de recursos separados e da ponte histórica compilada. Os stubs de teste não substituem essa implementação de produção.
 
-| Componente | Fonte público aqui? | Condição |
-| --- | --- | --- |
-| Bootstrap e adaptadores ActionScript | Sim | MIT, no escopo da camada própria |
-| Transporte, cache, ponte complementar e controles Java | Sim | MIT, no escopo da camada própria |
-| Scripts de patch/build e testes próprios | Sim | MIT, sem relicenciar suas entradas proprietárias |
-| Kernels FSR 1 da AMD | Sim | MIT da AMD, aviso original preservado |
-| Wrappers GLES e compositor experimental próprios | Sim | MIT, com atribuição AMD quando aplicável |
-| `PortalContext` histórico usado como base | Não, fonte original indisponível | O build depende de `portal.jar` autorizado, não republicado aqui |
-| Runtime AIR/HARMAN e SDK | Não | Dependências externas sob suas condições próprias |
-| Cliente SWF, assets e servidores Naruto Online | Não | Conteúdo/serviços de terceiros |
-| Mídia Kaguya | Apenas manifesto e roteamento | Assets e termos originais separados; mídia excluída desta publicação |
-| Chave privada de assinatura e senha | Não | Segredos do mantenedor; nunca devem entrar no repositório |
+Recuperar ou reimplementar a ponte histórica é uma prioridade para tornar o build da camada mobile totalmente reconstruível a partir de fontes públicas.
 
-O repositório permite revisar e modificar uma parte substancial da adaptação. **Ele ainda não permite reconstruir todo o APK a partir de um clone limpo usando somente fontes públicas.** Além do SDK externo, existe uma ponte histórica compilada cuja origem completa precisa ser recuperada ou substituída.
+[Escopo das fontes](SOURCE_STATUS.md) · [Licença](LICENSE) · [Componentes externos](THIRD_PARTY_NOTICES.md)
 
-Essa limitação não deve ser escondida sob a expressão “100% open source”. A meta técnica é tornar a ponte totalmente reconstruível, separar claramente dependências e manter testes que comprovem equivalência do comportamento. Veja [SOURCE_STATUS.md](SOURCE_STATUS.md) e [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+## Desenvolvimento
 
-## Estrutura do repositório
+### Mapa do repositório
 
 | Caminho | Responsabilidade |
 | --- | --- |
-| `src/NarutoAir.as` | Bootstrap, cliente AIR e coordenação do ciclo de vida |
-| `src/br/davi/narutoair/compat/` | Recursos, loaders, socket, som, entrada e perfil gráfico |
-| `bridge-src/` | Integração Android complementar, conta, portal, entrada, marca e Surface |
-| `transport-src/` | Proxy, SWF/ABC, cache e roteamento Kaguya |
-| `fsr-src/` | Renderização experimental EASU/RCAS |
-| `fsr/upstream/` | Headers AMD com direitos preservados |
-| `fsr/shaders/` | Shaders gerados para GLES |
-| `build-tools/` | Transformações e scripts auxiliares |
-| `wrapper-src/` | Marcador usado na geração do SWC da extensão |
-| `resource-tests/` | Testes de lógica, JavaScript e shaders |
-| `compat-tests/` | Fixtures SWF e validações ABC/áudio |
-| `bridge-tests/`, `transport-tests/`, `fsr-tests/` | Testes de classes, transporte, estado e hooks |
-| `test-stubs/` | Assinaturas mínimas de teste/compilação; não substituem o Android real |
-| `mods/kaguya/manifest.json` | Proveniência dos assets, sem os arquivos de mídia |
-| `NarutoAir-app.xml` | Identidade, versão, perfil, permissões e plataforma |
-| `build.py`, `test.py` | Pipeline da base, com dependências externas descritas abaixo |
+| `src/NarutoAir.as` | Bootstrap e coordenação do cliente AIR |
+| `src/br/davi/narutoair/compat/` | Loaders, recursos, áudio, socket, entrada e perfil gráfico |
+| `bridge-src/` | Integração Android, portal, sessão, marca e superfícies |
+| `transport-src/` | Proxy, cache, SWF/ABC e roteamento Kaguya |
+| `fsr-src/` | Renderer experimental EASU/RCAS |
+| `fsr/upstream/` e `fsr/shaders/` | Entradas AMD e shaders GLES |
+| `build-tools/` | Transformações de bytecode e ferramentas auxiliares |
+| `wrapper-src/` | Marcador utilizado na geração da extensão |
+| `resource-tests/` | Testes de lógica, scripts e shaders |
+| `compat-tests/` | Fixtures SWF e verificação independente de bytecode/áudio |
+| `bridge-tests/`, `transport-tests/`, `fsr-tests/` | Testes da ponte, transporte e estado gráfico |
+| `test-stubs/` | Assinaturas mínimas para compilação/testes |
+| `mods/kaguya/manifest.json` | Proveniência dos recursos separados do mod |
+| `docs/assets/` | Identidade visual deste README |
+| `NarutoAir-app.xml` | Identidade, plataforma, versão e permissões |
+| `build.py` e `test.py` | Pipeline de build e suíte principal |
 
-Arquivos compilados, APKs, SDK, chaves, logs locais e mídia de jogo/mod não foram publicados junto com esta abertura de código. A marca pode ser mantida na distribuição do produto; a licença do código não concede direitos sobre personagens ou marcas Naruto.
+### Ambiente utilizado
 
-## Ambiente de desenvolvimento e build
-
-### Ferramentas usadas na base
-
-| Ferramenta | Uso |
+| Ferramenta | Papel |
 | --- | --- |
-| Python 3 | Orquestração de build e verificações |
-| JDK 17 | Compilação e transformações; classes próprias compiladas com `--release 8` |
-| Node.js | Testes de lógica em arquivos `.mjs` |
-| AIR SDK `51.1.4.1` | Compiladores AS3, ADT, runtime e bibliotecas de extensão |
-| Android `android.jar` API 35 | Compilação das partes Android/GLES |
-| JPEXS/FFDec | Verificação independente opcional de SWF/ABC |
-| FFmpeg | Validação adicional da decodificação dos MP3 analisados |
-| EGL/GLES Mesa | Execução do teste de shader fora de Android |
+| Python 3 | Orquestração e verificações |
+| JDK 17 | Compilação e patches; classes próprias com `--release 8` |
+| Node.js | Testes `.mjs` |
+| AIR SDK 51.1.4.1 | Compiladores AS3, ADT e runtime |
+| `android.jar` API 35 | Compilação Android/GLES |
+| JPEXS / FFDec | Verificação independente opcional de SWF/ABC |
+| FFmpeg | Verificação adicional do áudio analisado |
+| Mesa EGL/GLES | Testes de shader fora do Android |
 
-JDK 17, AIR e API 35 descrevem o ambiente utilizado, não uma promessa de que qualquer combinação de versões produzirá o mesmo pacote. O build transforma bytecode do runtime; uma atualização do SDK deve ser tratada como mudança de integração e novamente validada.
+O pipeline modifica bytecode de integração do runtime. Uma mudança de SDK deve passar por nova validação; o resultado depende das versões e entradas utilizadas.
 
-### Dependências que não vêm no clone
+<details>
+<summary><strong>Preparar um build completo</strong></summary>
 
-Antes de gerar um APK completo, são necessários:
+Além do clone, são necessários:
 
-1. AIR SDK obtido por um canal autorizado e usado conforme suas condições.
-2. `android.jar` da API 35.
-3. Uma base autorizada `portal.jar` contendo as classes históricas esperadas pelo pipeline.
-4. Recursos de marca/ícones e, se desejado, assets Kaguya obtidos/licenciados separadamente.
-5. Um certificado PKCS#12 e arquivo de senha para assinar a sua distribuição.
+1. **AIR SDK autorizado**, utilizado conforme as condições do fornecedor.
+2. **`android.jar` API 35**.
+3. **`portal.jar` autorizado**, com as classes históricas esperadas pelo pipeline.
+4. **Ícones e marca da distribuição** e os recursos Kaguya previstos pelo empacotamento, obtidos separadamente.
+5. **Certificado PKCS#12** e arquivo de senha para assinar a distribuição.
 
-O clone público **não contém `portal.jar`**. O pipeline atual não resolve essa ausência baixando binários desconhecidos, nem recompila o `PortalContext` histórico a partir dos stubs. Os stubs servem para compilar/verificar unidades isoladas; não são uma implementação de produção.
+O pipeline atual espera os caminhos de recursos da distribuição e não oferece, por si só, um build alternativo sem essas entradas. Preparar uma distribuição que as omita exige ajustar o empacotamento e os testes correspondentes.
 
-### Variáveis de ambiente
+Configure os caminhos no ambiente:
 
 ```bash
 export AIR_HOME="/caminho/para/air-sdk"
@@ -472,9 +457,9 @@ export NARUTO_SIGNING_KEY="/caminho/privado/app.p12"
 export NARUTO_SIGNING_PASSWORD_FILE="/caminho/privado/senha.txt"
 ```
 
-Os caminhos são exemplos. Chave e senha devem ficar fora da árvore versionada. Se você não tem a chave original, sua assinatura não atualizará automaticamente o aplicativo assinado pelo mantenedor.
+Chave e senha ficam fora da árvore versionada. Uma chave própria gera uma distribuição própria; ela não atualiza diretamente um aplicativo assinado com o certificado do mantenedor.
 
-**Somente com as dependências completas e autorizadas disponíveis:**
+Com as dependências completas:
 
 ```bash
 python3 build-tools/build-fsr-shaders.py
@@ -482,30 +467,18 @@ python3 test.py
 python3 build.py
 ```
 
-`test.py` inclui testes que exigem os assets Kaguya. Em um clone público sem esses arquivos, utilize os testes independentes abaixo ou prepare primeiro uma cópia autorizada dos recursos. Não confunda um teste de arquivo ausente com falha do algoritmo.
+O build compila as classes próprias, aplica os patches, gera SWC/ANE, compila o bootstrap e empacota o APK. As etapas finais inspecionam o DEX e verificam a assinatura.
 
-O build compila classes próprias, adapta classes históricas, gera SWC/ANE, compila o bootstrap, empacota o runtime e verifica o DEX/assinatura. Ele altera temporariamente a classe EGL14 do SDK e restaura o arquivo no bloco de finalização. Use uma cópia de trabalho do SDK e evite builds concorrentes sobre o mesmo diretório.
+A classe EGL14 do SDK é alterada temporariamente durante o empacotamento e restaurada no bloco de finalização. Use uma cópia de trabalho do SDK e evite builds simultâneos no mesmo diretório.
 
-### Geração dos shaders
+Os shaders partem dos headers em `fsr/upstream/`. Confira a proveniência, os hashes de entrada e as alterações geradas; mantenha os avisos AMD no conteúdo derivado.
 
-`build-fsr-shaders.py` usa os headers publicados em `fsr/upstream/`. A proveniência e os hashes dessas entradas estão em `fsr/PROVENANCE.json`. Mantenha os avisos AMD no conteúdo derivado e verifique diferenças dos shaders gerados antes de publicar uma alteração.
+</details>
 
-### Verificação de um APK
+<details>
+<summary><strong>Testar a lógica sem conta, mod ou chave</strong></summary>
 
-Com as ferramentas Android/AIR adequadas, verifique manifesto, ABI, versão e certificado. Exemplos de comandos, ajustando os caminhos:
-
-```bash
-sha256sum NarutoOnline_RealmeC71_1.3.17.apk
-java -jar "$AIR_HOME/lib/android/lib/apksigner.jar" verify --verbose --print-certs NarutoOnline_RealmeC71_1.3.17.apk
-```
-
-A identidade da assinatura é necessária para atualizações. Um hash de arquivo só deve ser comparado ao artefato exato ao qual se refere.
-
-## Testes e nível de validação
-
-### Testes que podem começar sem jogo, mod ou chave
-
-Os testes Node abaixo exercitam lógica própria e fixtures locais. Eles não instalam o aplicativo, não fazem login em uma conta real e não certificam o comportamento dos drivers Android.
+Estes testes utilizam lógica própria e fixtures locais:
 
 ```bash
 node resource-tests/test-resources.mjs
@@ -519,113 +492,145 @@ node resource-tests/test-fps-hud.mjs
 node resource-tests/test-fsr-controls.mjs
 ```
 
-Para executar shaders em um ambiente EGL/GLES Mesa disponível:
+Eles não fazem login real nem exercitam os drivers do celular. A suíte completa `test.py` inclui testes que dependem do SDK, API Android e arquivos Kaguya.
+
+A verificação independente de SWF/ABC pode ser ativada com:
+
+```bash
+export FFDEC_JAR="/caminho/para/ffdec_lib.jar"
+python3 test.py
+```
+
+Essa execução exige também as dependências da suíte principal. A verificação usa JPEXS para conferir o resultado dos adaptadores, incluindo preservação dos tipos Sound e limites de controle de fluxo.
+
+Para executar os testes de shader com Mesa EGL/GLES disponível:
 
 ```bash
 python3 resource-tests/test-fsr-gpu.py
 ```
 
-Esse teste gera/atualiza `fsr/GPU_VALIDATION.json`. Seu resultado precisa identificar o backend realmente utilizado e conservar `android_device_tested=false` quando não houve teste em um aparelho.
+O resultado registra o backend utilizado em `fsr/GPU_VALIDATION.json`. Sem execução em um celular, o campo `android_device_tested` deve continuar `false`.
 
-### O que os testes cobrem
+</details>
 
-| Verificação | Alcance | Limite |
-| --- | --- | --- |
-| Lógica de portal, controles e sessão | Fixtures e eventos esperados | Não autentica uma conta real |
-| Transporte HTTP e cache | Caminhos, respostas e retorno a recursos oficiais em fixtures | Não mede disponibilidade de todos os CDNs |
-| SWF/ABC | Referências, tags e preservação estrutural em amostras | Não prova todos os plugins futuros |
-| Áudio Kaguya | Integridade e MP3 com PCM não silencioso nos arquivos analisados | Não comprova saída audível no aparelho |
-| Shaders EASU/RCAS | Compilação e resultados no Mesa utilizado | Não é benchmark Android |
-| Hook e restauração de estado | Testes JVM/bytecode e inspeção de DEX | Não reproduz todos os drivers EGL |
-| Assinatura/empacotamento | Validação do artefato gerado | Não equivale a aprovação Google Play |
+<details>
+<summary><strong>Conferir um APK gerado</strong></summary>
 
-Existem relatos do usuário de entrada e funcionamento do jogo, com quedas de FPS em determinadas cenas. Eles são úteis como evidência de uso, mas não substituem uma matriz de hardware ou um teste reproduzível de desempenho.
+```bash
+sha256sum NarutoOnline_RealmeC71_1.3.17.apk
+java -jar "$AIR_HOME/lib/android/lib/apksigner.jar" verify --verbose --print-certs NarutoOnline_RealmeC71_1.3.17.apk
+```
 
-### Protocolo de benchmark proposto
+Confira também pacote, versionCode, ABI e permissões com as ferramentas Android. Compare o hash somente com o arquivo exato ao qual ele se refere.
 
-Para comparar duas versões, use o mesmo aparelho, taxa de tela, conta, servidor, cena e estado térmico. Meça separadamente primeiro carregamento e reabertura com cache. Compare FSR desligado/ligado sem trocar as outras opções ao mesmo tempo.
+</details>
 
-Registre pelo menos duração, FPS do HUD, ferramenta de frame time/apresentação usada, picos de tempo, temperatura, consumo de memória e falhas. Percentis de frame time e ocorrências de travamento são mais úteis para estabilidade do que apenas o maior número de FPS exibido.
+## Validação
 
-Ainda faltam testes sustentados de batalhas, menus pesados, áudio, recarga, mudança de rede, segundo plano, encerramento do processo e retomada em uma seleção ampla de aparelhos.
+| Área | Verificação realizada |
+| --- | --- |
+| Portal e sessão | Scripts e fixtures de navegação, bloqueio, recuperação e eventos obsoletos |
+| Controles | Foco, entrada, coordenadas, arrasto e preferências em modelos de teste |
+| Transporte | HTTP, socket, cache, limites, exclusões e retorno aos recursos oficiais |
+| SWF/ABC | Fixtures compiladas, idempotência, preservação e leitura independente |
+| Áudio 1.3.17 | 15 SWFs Kaguya intactos; seis construções externas, tipos nativos e realocação de controle de fluxo |
+| FSR | Shaders em Mesa llvmpipe, restauração de estado GL e hook EGL14 |
+| Empacotamento | DEX, bootstrap e recursos conferidos; assinatura v2 validada |
 
-## Diagnóstico de problemas
+Os testes JVM e Node verificam partes do comportamento com fixtures e modelos. A inspeção do APK confirma o que entrou no pacote. Nenhuma dessas etapas substitui o teste de sessão, som e apresentação em um Android real.
 
-| Sintoma | O que conferir primeiro | Limite da conclusão |
-| --- | --- | --- |
-| APK não instala | Android API 24+, ABI ARM64 do sistema, integridade e assinatura da versão anterior | RAM não explica um conflito de assinatura |
-| Alerta Play Protect | Origem do arquivo, certificado e mensagem exata | Recompilar não garante retirar o alerta |
-| Página branca | Rede, WebView, recursos de CSS/JS e erros do portal | Não basta para afirmar falha do AIR |
-| Cloudflare/403 | URL/host principal, sessão e acesso ao portal pelo navegador | Sem promessa de bypass |
-| Conta/servidor anterior reaparece | Cookies e descarte da sessão anterior | Login salvo e convidado automático são situações diferentes |
-| Travamento em 14% | Primeiros envios/flush/recebimentos do socket e dados da sessão | Conexão TCP aberta não prova resposta do jogo |
-| Travamento em porcentagens posteriores | Recurso pendente, importação SWF, memória e comunicação | O texto do último plugin pode não ser a causa do bloqueio |
-| FPS próximo de 30 com alvo 60 | Custo da cena, limite interno, frequência da tela e medição real | O alvo não garante taxa sustentada |
-| Animação parece em 2× | Lógica vinculada a frame scripts | Não é evidência de geração de quadros |
-| FSR piora desempenho ou mostra imagem incorreta | Desligue a opção e compare a saída AIR; registre GPU/driver | FSR é experimental e pode ter custo maior que o ganho |
-| Som não toca | Volume de mídia, SOM ON/OFF, categoria do jogo e TESTAR SOM | MP3 íntegro não garante canal ativo |
-| Som Kaguya ausente | Arquivo solicitado, disponibilidade e alcance do subconjunto | Não há BGM completa no material recebido |
-| Controle cobre botão | Arraste CONTROLES e ajuste o HUD | Resolução/layout do jogo variam |
-| Recarga mostra dados inesperados | Conta e servidor do portal atual | Não prossiga com uma compra baseada em sessão incorreta |
+Há relatos de funcionamento do jogo durante o desenvolvimento. Ainda faltam uma matriz de compatibilidade, benchmarks reproduzíveis em GPUs Android e confirmação audível da correção 1.3.17 no aparelho.
 
-### Informações úteis para uma issue
+### Comparar desempenho
 
-Inclua versão do aplicativo, modelo exato do aparelho, Android, ABI, WebView, resolução/taxa da tela, passo a passo, duração até falhar, servidor sem credenciais e opções ativas. Informe se ocorre antes do cliente, durante carregamento ou depois de entrar no mapa.
+Use o mesmo celular, conta, servidor, cena, taxa de tela e condição térmica. Meça primeiro carregamento e reabertura com cache separadamente. Compare FSR ligado e desligado sem mudar as demais opções.
 
-Para áudio, descreva separadamente som oficial, sons do mod e resultado de TESTAR SOM. Para gráficos, inclua FSR ligado/desligado, meta escolhida e comportamento do HUD. Uma captura de tela ajuda, mas não identifica sozinha o motivo de uma queda.
+Registre duração, memória, temperatura, FPS do HUD e a ferramenta usada para medir frame time/apresentação. Picos de tempo e travamentos ajudam a entender estabilidade melhor que o maior FPS exibido.
 
-Remova dados de sessão e conta. Senhas, cookies, chaves de assinatura e tokens não devem ser enviados por issue, print ou arquivo de diagnóstico.
+## Diagnóstico
 
-## Contribuição e roteiro
+| Sintoma | Primeira verificação |
+| --- | --- |
+| APK não instala | Android 7+, sistema ARM64, integridade e certificado da versão instalada |
+| Aviso do Play Protect | Origem do arquivo, certificado e texto exato do alerta |
+| Portal branco | Conexão, WebView e carregamento dos recursos da página |
+| Portal bloqueado ou HTTP 403 | Acesso ao portal, sessão e resposta do serviço remoto |
+| Conta ou servidor antigo reaparece | Sessão salva e descarte do cliente anterior |
+| Carregamento para em 14% | Primeiro envio/flush/recebimento do socket e dados da sessão |
+| Carregamento para em outra etapa | Recurso pendente, importação SWF, memória e comunicação |
+| Alvo 60, contador perto de 30 | Custo da cena, limite interno, frequência da tela e medição |
+| Animação parece em 2× | Dependência dos frame scripts com a cadência do Stage |
+| FSR piora a imagem ou a fluidez | Desative, compare com AIR e registre GPU/driver |
+| Nenhum som | SOM: ON, mídia do Android, saída selecionada e TESTAR SOM |
+| Teste local toca, jogo silencioso | Categorias do jogo, recursos solicitados e início dos canais |
+| Efeito Kaguya ausente | Nome solicitado, disponibilidade do arquivo e alcance do manifesto |
+| Controles cobrem a interface | Reposicione CONTROLES ou o HUD |
+| Recarga mostra outra conta/servidor | Confira a sessão do portal antes de concluir a compra |
 
-Contribuições devem explicar o problema concreto, mudança de comportamento, teste relevante e limites conhecidos. Mantenha alterações pequenas e revisáveis, conserve atribuições de terceiros e não introduza dependências binárias sem origem/condições claras.
+O nome do último plugin na tela de carregamento pode indicar apenas onde o progresso parou. Da mesma forma, um socket conectado não demonstra que o servidor respondeu. Relacione a etapa visível com os eventos observados antes de atribuir a causa.
 
-Alterações na autenticação, socket ou parâmetros de lançamento precisam preservar o comportamento autorizado do cliente. Não substitua uma resposta ausente por valores fictícios para esconder um travamento. No renderer, mantenha fallback funcional e trate corretamente destruição de superfície e restauração de estado.
+### Abrir um relato útil
 
-### Prioridades técnicas
+Inclua versão, modelo do celular, Android, ABI, WebView, resolução/taxa da tela e os passos até a falha. Informe quanto tempo levou, em qual etapa ocorreu e quais opções estavam ativas.
 
-1. Recuperar ou reimplementar a ponte histórica para permitir build integral da camada mobile a partir de fonte.
-2. Criar uma matriz de compatibilidade e requisitos de desempenho medidos por aparelho.
-3. Confirmar o áudio oficial e Kaguya em Android, isolando recurso, canal e saída nativa.
-4. Medir frame time e estabilizar importações/cenas pesadas antes de prometer metas superiores.
-5. Avaliar a separação entre velocidade da lógica e apresentação, preservando animações/protocolo.
-6. Validar FSR em GPUs reais e manter a opção desativada quando o custo não compensa.
-7. Completar cenários de retomada, troca de conta/servidor e recarga com testes de integração.
-8. Ampliar o mod somente com recursos autorizados e mapeamento comprovado para o cliente atual.
+Para áudio, separe som oficial, efeitos Kaguya e resultado de TESTAR SOM. Para gráficos, informe a meta de FPS e se o FSR estava ligado. Envie uma captura ou vídeo quando ajudar a reproduzir, removendo os dados da conta e sessão.
 
-Esses itens são direção de desenvolvimento, não promessa de prazo ou recursos já entregues. Geração de quadros permanece pesquisa futura, sem implementação anunciada neste produto.
+[Registrar problema ou sugestão](https://github.com/W2CAPITAL/Naruto-online-mobile-/issues)
 
-## Licenças, créditos e suporte
+## Contribuir
 
-### Código próprio
+Uma boa contribuição explica o problema, o comportamento esperado e como a mudança foi verificada. Prefira alterações pequenas, preserve atribuições e documente as dependências necessárias para reproduzir o resultado.
 
-Copyright © 2026 **W1/W2 Soluções Capitais**. A camada própria publicada está sob [licença MIT](LICENSE), respeitadas as exclusões e atribuições em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). O produto experimental é disponibilizado sem garantia de desempenho ou compatibilidade universal.
+Mudanças em autenticação, parâmetros ou socket precisam conservar o protocolo e o fluxo autorizado do cliente. No renderer, inclua o retorno à saída AIR e a liberação das superfícies. No adaptador ABC, confira casts, tipos, símbolos, desvios e handlers — além dos bytes dos recursos.
 
-### Terceiros
+### Próximas prioridades
 
-Naruto, Naruto Online, personagens, logotipos, jogo e respectivos assets pertencem aos seus titulares. A utilização do nome descreve o cliente ao qual esta adaptação se destina; não estabelece parceria oficial.
+| Frente | Trabalho previsto |
+| --- | --- |
+| Build aberto | Recuperar ou reimplementar a ponte histórica |
+| Compatibilidade | Testar aparelhos e estabelecer requisitos medidos |
+| Áudio | Confirmar reprodução oficial e Kaguya no Android |
+| Fluidez | Medir frame time e reduzir pausas em importações/cenas pesadas |
+| Velocidade | Investigar separação entre lógica e apresentação |
+| FSR | Validar GPUs reais, custo, imagem e retomada |
+| Sessão | Completar testes de troca, segundo plano, rede e recarga |
+| Kaguya | Ampliar apenas os recursos autorizados e mapeados para o cliente BR |
 
-AIR/HARMAN/Adobe têm termos próprios. Os kernels FSR 1 mantêm a licença MIT e copyright AMD. Kaguya mantém autoria e condições originais. A licença deste repositório não autoriza redistribuição irrestrita desses componentes.
+O roteiro orienta o desenvolvimento e não define datas de entrega. Geração de quadros continua como pesquisa futura, sem implementação nesta base.
 
-### Contato
+## Licenças e créditos
 
-- GitHub W1: [github.com/W1CAPITAL](https://github.com/W1CAPITAL)
-- GitHub W2: [github.com/W2CAPITAL](https://github.com/W2CAPITAL)
-- Suporte: **(13) 99119-9349** — [WhatsApp](https://wa.me/5513991199349)
-- Relatos técnicos: [Issues do projeto](https://github.com/W2CAPITAL/Naruto-online-mobile-/issues)
+Copyright © 2026 **W1/W2 Soluções Capitais**. A camada própria está sob [licença MIT](LICENSE), com o escopo e as atribuições em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-No aplicativo, copyright e links aparecem antes da entrada no cliente e o rodapé some durante o jogo para preservar a área de interação.
+Naruto, Naruto Online, personagens, marcas, cliente e assets pertencem aos respectivos titulares. AIR/HARMAN/Adobe têm termos próprios. Os kernels FSR 1 mantêm os avisos e licença MIT da AMD. Kaguya conserva a autoria e as condições do material original.
 
-### Referências técnicas
+O aplicativo é uma adaptação comunitária independente, sem endosso de Oasis Games, Tencent, Bandai Namco, AMD ou NVIDIA. A licença do código não transfere direitos sobre o jogo, as marcas ou a mídia incorporada a uma distribuição.
+
+<details>
+<summary><strong>Referências técnicas</strong></summary>
 
 - [Android: minSdkVersion e targetSdkVersion](https://developer.android.com/guide/topics/manifest/uses-sdk-element)
 - [Android: ABIs e arm64-v8a](https://developer.android.com/ndk/guides/abis)
 - [AIR SDK e documentação](https://airsdk.dev/)
 - [AIR Stage.frameRate](https://airsdk.dev/reference/actionscript/3.0/flash/display/Stage.html)
 - [AMD FidelityFX-FSR: código e licença](https://github.com/GPUOpen-Effects/FidelityFX-FSR)
-- [AMD FSR e tecnologias relacionadas](https://gpuopen.com/fidelityfx-superresolution/)
+- [AMD FSR](https://gpuopen.com/fidelityfx-superresolution/)
 - [NVIDIA DLSS](https://developer.nvidia.com/rtx/dlss)
 - [Magpie](https://github.com/Blinue/Magpie)
-- [Definição de open source da OSI](https://opensource.org/osd)
 
-Os dados de comportamento desta documentação são derivados da base publicada e das verificações descritas. Documentação externa fundamenta a plataforma; ela não certifica este aplicativo.
+</details>
+
+## Suporte
+
+Para falhas reproduzíveis e sugestões, use as [Issues do projeto](https://github.com/W2CAPITAL/Naruto-online-mobile-/issues). Para contato com o mantenedor:
+
+**[W1CAPITAL](https://github.com/W1CAPITAL)** · **[W2CAPITAL](https://github.com/W2CAPITAL)** · **[WhatsApp — (13) 99119-9349](https://wa.me/5513991199349)**
+
+---
+
+<div align="center">
+
+**W1/W2 Soluções Capitais**  
+Naruto Online Mobile · documentação da base 1.3.17
+
+</div>

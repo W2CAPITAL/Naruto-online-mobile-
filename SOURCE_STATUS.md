@@ -1,6 +1,6 @@
-# Escopo do código público — base 1.3.16
+# Escopo do código público — base 1.3.17
 
-Revisão de documentação: 2026-10-04. APK de referência: versionCode 1003016,
+Revisão de documentação: 2026-10-04. APK de referência: versionCode 1003017,
 pacote `air.br.davi.narutoair.c71r2`, Android API 24+, ARM64, alvo API 35.
 
 ## Publicado
@@ -33,9 +33,12 @@ desligado por padrão, não gera quadros e pode custar desempenho.
 Os botões LOG/DIAG da interface foram removidos. O portal tem classificação
 limitada de bloqueios e recuperação limitada; não remove regras do site.
 
-Áudio 1.3.16: BrowserSound nativo, resolução de URLs, AudioSession de mídia,
-SOM salvo e teste PCM local. Os arquivos Kaguya analisados têm MP3 decodificável
-não silencioso; reprodução real Android ainda precisa ser confirmada.
+Áudio 1.3.17: Sound nativo preservado em tipos, superclasses e casts. Somente
+construções externas estáticas reconhecidas recebem BrowserSound e resolução
+de URLs. AudioSession utiliza saída de mídia, SOM salvo, teste PCM e reaplicação
+na retomada. Os 15 SWFs Kaguya passam pelo adaptador sem alteração de bytes.
+Fixtures e parser independente verificam construções, desvios, switches e
+handlers. Reprodução real Android ainda precisa ser confirmada.
 
 ## Validação
 
