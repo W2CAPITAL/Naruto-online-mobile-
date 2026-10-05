@@ -1,6 +1,6 @@
-# Escopo do código público — base 1.3.17
+# Escopo do código público — base 1.3.18
 
-Revisão de documentação: 2026-10-04. APK de referência: versionCode 1003017,
+Revisão de documentação: 2026-10-05. APK de referência: versionCode 1003018,
 pacote `air.br.davi.narutoair.c71r2`, Android API 24+, ARM64, alvo API 35.
 
 ## Publicado
@@ -38,7 +38,13 @@ construções externas estáticas reconhecidas recebem BrowserSound e resoluçã
 de URLs. AudioSession utiliza saída de mídia, SOM salvo, teste PCM e reaplicação
 na retomada. Os 15 SWFs Kaguya passam pelo adaptador sem alteração de bytes.
 Fixtures e parser independente verificam construções, desvios, switches e
-handlers. Reprodução real Android ainda precisa ser confirmada.
+handlers. O usuário confirmou o retorno dos efeitos nessa versão; música segue ausente.
+
+Áudio 1.3.18: resolve URLs sem protocolo do CDN oficial e acrescenta diagnóstico
+específico por toque. Metadados HTTP e eventos Sound ficam em dois buffers de
+até 64 linhas, sem queries, autoridades de URL, headers ou conteúdo de mídia.
+Não há envio periódico à interface. O ajuste ainda não foi confirmado como
+solução para a trilha no aparelho.
 
 ## Validação
 

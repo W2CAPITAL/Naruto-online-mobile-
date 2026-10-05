@@ -37,6 +37,10 @@ for(const [input,expected] of [
  ['https://naruto-pt-login.oasgames.com/LoginManager-1.0.php?token=abc','https://naruto-pt-login.oasgames.com/LoginManager-1.0.php?token=abc'],
  ['https://cdnnaruto-pt.oasgames.com.evil.test/client.swf','https://cdnnaruto-pt.oasgames.com.evil.test/client.swf'],
  ['//evil.test/client.swf','//evil.test/client.swf'],
+ ['//cdnnaruto-pt.oasgames.com/PT_NarutoAlpha6.00Build300/assets/sound/bgm.mp3?v=7',origin+'/PT_NarutoAlpha6.00Build300/assets/sound/bgm.mp3?v=7'],
+ ['//cdnnaruto-pt.oasgames.com.evil.test/bgm.mp3','//cdnnaruto-pt.oasgames.com.evil.test/bgm.mp3'],
+ ['//cdnnaruto-pt.oasgames.com@evil.test/bgm.mp3','//cdnnaruto-pt.oasgames.com@evil.test/bgm.mp3'],
+ ['//cdnnaruto-pt.oasgames.com:443/bgm.mp3','//cdnnaruto-pt.oasgames.com:443/bgm.mp3'],
  // Regression: Original entry initLoadingView derives resource.cfg from loaderInfo.loaderURL; AIR reports app:/NarutoAir.swf.
  ['app:/resource.cfg',folder+'resource.cfg'],
  ['app:/version.txt',folder+'version.txt'],

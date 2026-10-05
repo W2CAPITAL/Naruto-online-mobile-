@@ -95,8 +95,15 @@ public class TransportTest {
             exchange.sendResponseHeaders(200,0);
             exchange.getResponseBody().write("chunked upstream".getBytes(StandardCharsets.UTF_8));exchange.close();
         });
+        server.createContext("/PT_NarutoAlpha9.35Build301/assets/sound/music.mp3", exchange -> respond(exchange,403,"audio denied"));
         server.start();
         try {
+            AudioResourceLog.clear();
+            Response audio=request("GET","/PT_NarutoAlpha9.35Build301/assets/sound/music.mp3?token=SECRET","",true);
+            check(audio.headers.contains("403"),"audio upstream error preserved");
+            String audioReport=AudioResourceLog.snapshot();
+            check(audioReport.contains("HTTP=403") && audioReport.contains("bytes=12"),"audio HTTP metadata missing");
+            check(!audioReport.contains("SECRET") && !audioReport.contains("token"),"audio query leaked");
             Response range=request("GET","/range","Range: bytes=2-5\r\n",true);
             check(range.headers.contains("206") && range.headers.contains("Content-Range: bytes 2-5/10") && range.headers.contains("ETag: test-etag"),"range response headers");
             check(range.smallBody.equals("2345"),"range bytes");

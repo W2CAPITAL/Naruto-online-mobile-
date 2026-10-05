@@ -39,6 +39,7 @@ public final class RuntimeTransport {
         HttpURLConnection connection = null;
         StaticAssetCache.Writer cacheWrite = null;
         boolean responseStarted = false;
+        String audioPath=null;
         try {
             socket.setSoTimeout(30000);
             InputStream input = new BufferedInputStream(socket.getInputStream());
@@ -78,6 +79,8 @@ public final class RuntimeTransport {
             String target = request[1];
             URL base = new URL(origin);
             URL url = resolve(base, target);
+            audioPath=url.getPath();
+            AudioResourceLog.record(audioPath,"REQUEST",0,0);
             if (url.getPath().equals("/crossdomain.xml")) {
                 byte[] policy = ("<?xml version=\"1.0\"?><cross-domain-policy>" +
                     "<allow-access-from domain=\"*\" secure=\"false\"/>" +
@@ -101,6 +104,7 @@ public final class RuntimeTransport {
                     responseStarted = true;
                     localHeaders(output,mod.length,contentType(url.getPath()),"Kaguya");
                     if (!method.equals("HEAD")) output.write(mod);
+                    AudioResourceLog.record(audioPath,"LOCAL",200,mod.length);
                     output.flush(); return;
                 }
             }
@@ -111,6 +115,7 @@ public final class RuntimeTransport {
                     responseStarted = true;localHeaders(output,cached.length,cached.type,"Disk");
                     byte[] buffer = new byte[32768];
                     for (int n; (n=cached.stream.read(buffer))!=-1;) output.write(buffer,0,n);
+                    AudioResourceLog.record(audioPath,"CACHE",200,cached.length);
                     output.flush(); return;
                 }
             }
@@ -135,6 +140,7 @@ public final class RuntimeTransport {
                     try (OutputStream upstream = connection.getOutputStream()) { upstream.write(body); }
                 }
                 int status = connection.getResponseCode();
+                AudioResourceLog.record(audioPath,"HTTP",status,0);
                 saveCookies(connection, url);
                 if (Arrays.asList(301, 302, 303, 307, 308).contains(status)) {
                     String location = connection.getHeaderField("Location");
@@ -202,12 +208,14 @@ public final class RuntimeTransport {
                     }
                 }
                 output.flush();
+                AudioResourceLog.record(audioPath,"COMPLETE",status,copied);
                 if (cacheWrite != null) {cacheWrite.finish();cacheWrite=null;}
                 // Paths contain no query/token; cookie/header values are never logged.
                 // Release: no per-asset trace formatting or UI dispatch.
                 return;
             }
         } catch (Exception ex) {
+            AudioResourceLog.record(audioPath,"ERROR",0,0);
             // HTTP failure is returned to the requesting loader.
             if (!responseStarted) try { reply(socket.getOutputStream(), 502, "Falha ao carregar recurso"); }
             catch (IOException ignored) { }

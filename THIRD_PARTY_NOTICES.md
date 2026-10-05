@@ -2,7 +2,7 @@
 
 A licença MIT da camada própria não concede direitos sobre o jogo, servidores,
 marcas, runtime ou mídia de terceiros. Este arquivo identifica o escopo público
-da base 1.3.17; não é uma autorização de distribuição desses componentes.
+da base 1.3.18; não é uma autorização de distribuição desses componentes.
 
 | Componente | Origem/condição | Publicado aqui |
 | --- | --- | --- |

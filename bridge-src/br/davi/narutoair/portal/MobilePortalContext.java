@@ -27,6 +27,7 @@ public final class MobilePortalContext extends PortalContext {
         functions.put("graphicsFPS",GraphicsBridge.fpsFunction());
         functions.put("graphicsFSR",FsrBridge.function());
         functions.put("kaguyaMode",KaguyaBridge.function());
+        functions.put("audioDiagnostic",AudioDiagnostic.function());
         final FREFunction recharge=PortalBranding.recharge();
         functions.put("recharge",new FREFunction(){public com.adobe.fre.FREObject call(com.adobe.fre.FREContext c,com.adobe.fre.FREObject[] a){FsrBridge.stop(c);return recharge.call(c,a);}});
         functions.put("adaptSwfBytes",new AdaptSwfBytes());

@@ -13,6 +13,9 @@ package br.davi.narutoair.compat {
  import flash.text.TextFormat;
  import flash.utils.getTimer;
  import flash.net.SharedObject;
+ import flash.desktop.Clipboard;
+ import flash.desktop.ClipboardFormats;
+ import flash.media.SoundMixer;
  /** Separate app UI. Pointer sends real Android input, not fake client load events. */
  public final class MobileControls extends Sprite {
   private var host:Stage,send:Function,restart:Function,account:Function,recharge:Function;
@@ -30,7 +33,7 @@ package br.davi.narutoair.compat {
   private var px:Number=100,py:Number=100,lx:Number,ly:Number,total:Number=0,markTime:int=0;
   private var keyboardPanel:Sprite=new Sprite(),editor:TextField=new TextField();
   private var lastInput:TextField;
-  public function MobileControls(stage:Stage,dispatch:Function,onRestart:Function,onAccount:Function=null,profile:GraphicsProfile=null,onRecharge:Function=null,onMod:Function=null) {
+  public function MobileControls(stage:Stage,dispatch:Function,onRestart:Function,onAccount:Function=null,profile:GraphicsProfile=null,onRecharge:Function=null,onMod:Function=null,audioReport:Function=null) {
    host=stage;send=dispatch;restart=onRestart;account=onAccount;graphicsProfile=profile;recharge=onRecharge;mouseChildren=true;
    modApply=onMod;
    try{modPrefs=SharedObject.getLocal("narutoKaguya");if(modPrefs.data.enabled!==undefined)modEnabled=Boolean(modPrefs.data.enabled);if(modPrefs.data.style!==undefined)modStyle=Math.max(0,Math.min(4,int(modPrefs.data.style)));}catch(modPrefError:Error){}
@@ -52,7 +55,14 @@ package br.davi.narutoair.compat {
    button(panel,"RECARGA OFICIAL",12,272,318,function(e:MouseEvent):void{panel.visible=false;if(recharge!=null)recharge();});
    soundButton=button(panel,AudioSession.enabled?"SOM: ON":"SOM: OFF",12,324,153,function(e:MouseEvent):void {AudioSession.toggle();soundButton.text=AudioSession.enabled?"SOM: ON":"SOM: OFF";});
    button(panel,"TESTAR SOM",177,324,153,function(e:MouseEvent):void {try{hint.text=AudioSession.test()?"Tom curto enviado. Volume de midia controla o som.":"Ative SOM para testar.";}catch(error:Error){hint.text="Nao foi possivel iniciar o teste de som.";}});
-   hint=new TextField();hint.defaultTextFormat=new TextFormat("_sans",15,0xffffff);hint.width=320;hint.height=48;hint.multiline=true;hint.wordWrap=true;hint.x=12;hint.y=376;
+   button(panel,"COPIAR DIAGNOSTICO DE AUDIO",12,376,318,function(e:MouseEvent):void {
+    try {
+     var text:String="Naruto Online Mobile 1.3.18 — audio\nSOM="+AudioSession.enabled+"; volume global="+SoundMixer.soundTransform.volume+"\n\nSound externo:\n"+BrowserResources.audioSummary()+"\n\nTransporte:\n"+(audioReport!=null?String(audioReport()):"Indisponivel");
+     var copied:Boolean=Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT,text);
+     hint.text=copied?"Diagnostico copiado. Cole na conversa para analisar a musica.":"Nao foi possivel copiar o diagnostico.";
+    }catch(copyError:Error){hint.text="Nao foi possivel copiar o diagnostico.";}
+   });
+   hint=new TextField();hint.defaultTextFormat=new TextFormat("_sans",15,0xffffff);hint.width=320;hint.height=48;hint.multiline=true;hint.wordWrap=true;hint.x=12;hint.y=428;
    hint.text="Arraste CONTROLES para mover. Mouse: deslize no touchpad.";hint.selectable=false;panel.addChild(hint);
    panel.visible=false;addChild(panel);
    fpsButton=button(graphicsPanel,"FPS: 60 / PADRAO",12,12,318,function(e:MouseEvent):void{if(!graphicsProfile)return;var choices:Array=[60,90,120,0];graphicsProfile.setFPSChoice(choices[(choices.indexOf(graphicsProfile.selectedFPS)+1)%choices.length]);updateGraphics();});
@@ -94,10 +104,11 @@ package br.davi.narutoair.compat {
    var b:TextField=new TextField();b.defaultTextFormat=new TextFormat("_sans",18,0xffffff,true);b.text=text;b.selectable=false;b.background=true;b.backgroundColor=0x303943;b.width=w;b.height=42;b.x=x;b.y=y;b.addEventListener(MouseEvent.CLICK,callback);owner.addChild(b);return b;
   }
   private function layout(event:Event=null):void {
-   panel.graphics.clear();panel.graphics.beginFill(0x111922,.95);panel.graphics.drawRoundRect(0,0,344,431,12);panel.graphics.endFill();
+   panel.graphics.clear();panel.graphics.beginFill(0x111922,.95);panel.graphics.drawRoundRect(0,0,344,483,12);panel.graphics.endFill();
+   panel.scaleX=panel.scaleY=Math.min(1,Math.max(.1,(host.stageHeight-8)/483),Math.max(.1,(host.stageWidth-8)/344));
    panel.x=Math.max(0,Math.min(host.stageWidth-344,toggle.x+toggle.width-344));
    panel.y=toggle.y+toggle.height+8;
-   if(panel.y+431>host.stageHeight)panel.y=Math.max(0,toggle.y-387);
+   if(panel.y+panel.height>host.stageHeight)panel.y=Math.max(0,toggle.y-panel.height-8);
    graphicsPanel.graphics.clear();graphicsPanel.graphics.beginFill(0x111922,.95);graphicsPanel.graphics.drawRoundRect(0,0,344,504,12);graphicsPanel.graphics.endFill();
    graphicsPanel.scaleX=graphicsPanel.scaleY=Math.min(1,Math.max(.1,(host.stageHeight-8)/504),Math.max(.1,(host.stageWidth-8)/344));
    graphicsPanel.x=Math.max(0,Math.min(host.stageWidth-graphicsPanel.width,panel.x));graphicsPanel.y=toggle.y+toggle.height+8;if(graphicsPanel.y+graphicsPanel.height>host.stageHeight)graphicsPanel.y=Math.max(0,toggle.y-graphicsPanel.height-8);

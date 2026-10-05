@@ -70,6 +70,7 @@ package br.davi.narutoair.portal
       public function graphicsFPS(choice:Number):Object {return context.call("graphicsFPS",String(choice));}
       public function graphicsFSR(enabled:Boolean,epoch:int):Object {return context.call("graphicsFSR",String(enabled),String(epoch));}
       public function kaguyaMode(enabled:Boolean,style:int):Object {return context.call("kaguyaMode",String(enabled),String(style));}
+      public function audioDiagnostic(action:String="snapshot"):Object {return context.call("audioDiagnostic",action);}
 
       public function dispose() : void
       {

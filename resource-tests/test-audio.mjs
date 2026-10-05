@@ -14,6 +14,8 @@ source=source.replace(/^\s*import .*;$/gm,'').replace(/^package[^\{]+\{/,'').rep
  .replace(/delete (loading|channels)\[([^\]]+)\]/g,'$1.delete($2)')
  .replace(/(loading|channels)\[([^\]]+)\]=true/g,'$1.set($2,true)')
  .replace(/event.currentTarget as SoundChannel/g,'event.currentTarget')
+ .replace(/event is (IOErrorEvent|SecurityErrorEvent)/g,'event instanceof $1')
+ .replace(/(?:IOErrorEvent|SecurityErrorEvent)\(event\)/g,'event')
  .replace(/:(?:URLRequest|SoundLoaderContext|SoundTransform|SoundChannel|Dictionary|String|Boolean|Object|Array|Event|Error|int|Number|BrowserSound|void)\b/g,'')
  .replace(/\b(var|static) (\w+)(?=\s*[=;])/g,'$1 $2');
 source=source.replace(/for each\(var (\w+) in (\w+)\)/g,'for(var $1 of $2)')
@@ -45,7 +47,9 @@ class NativeSound extends Events {
  play(...args){this.calls.push(args);return this.nullChannel?null:new NativeChannel();}
 }
 const notes=[];let copies=0;
-const c=vm.createContext({Sound:NativeSound,SoundChannel,Dictionary:class extends Map{constructor(){super();}},Event:{COMPLETE:'complete',SOUND_COMPLETE:'soundComplete'},IOErrorEvent:{IO_ERROR:'io'},SecurityErrorEvent:{SECURITY_ERROR:'security'},BrowserResources:{request:r=>{copies++;return {...r,url:'http://127.0.0.1:32123/PT_NarutoAlpha9.35Build301/'+r.url}},note:(...a)=>notes.push(a)}});
+class IOErrorEvent {static IO_ERROR='io';}
+class SecurityErrorEvent {static SECURITY_ERROR='security';}
+const c=vm.createContext({Sound:NativeSound,SoundChannel,Dictionary:class extends Map{constructor(){super();}},Event:{COMPLETE:'complete',SOUND_COMPLETE:'soundComplete'},IOErrorEvent,SecurityErrorEvent,BrowserResources:{request:r=>{copies++;return {...r,url:'http://127.0.0.1:32123/PT_NarutoAlpha9.35Build301/'+r.url}},note:(...a)=>notes.push(a)}});
 try{vm.runInContext(source+'\nglobalThis.BrowserSound=BrowserSound;',c);}catch(e){fs.writeFileSync('/tmp/naruto-audio-transformed.js',source);throw e;}
 const context={bufferTime:8000,checkPolicyFile:true},request={url:'assets/sound/music.mp3',headers:['x']};
 const s=new c.BrowserSound(request,context);

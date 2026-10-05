@@ -8,7 +8,7 @@
 
 Login pelo portal, jogo no runtime AIR e controles pensados para a tela do celular.
 
-**1.3.17** · Android **7.0+** · **ARM64** · Camada própria sob **MIT**
+**1.3.18** · Android **7.0+** · **ARM64** · Camada própria sob **MIT**
 
 [Começar](#começar) · [Controles](#controles) · [Gráficos](#gráficos-e-desempenho) · [Desenvolvimento](#desenvolvimento) · [Suporte](#suporte)
 
@@ -24,7 +24,7 @@ O trabalho deste repositório está na adaptação: fazer o cliente encontrar se
 
 O projeto é mantido por **W1/W2 Soluções Capitais**. A camada própria tem código público e licença MIT. O cliente do jogo, o runtime AIR e os recursos de terceiros conservam seus direitos e condições de uso.
 
-> **Estado atual:** versão experimental, com funcionamento relatado durante o desenvolvimento. A base 1.3.17 passou pelas verificações de código e empacotamento descritas aqui. A reprodução de áudio dessa versão e o desempenho em diferentes celulares ainda precisam de confirmação no aparelho.
+> **Estado atual:** versão experimental, com funcionamento relatado durante o desenvolvimento. A base 1.3.18 passou pelas verificações de código e empacotamento descritas aqui. Os efeitos voltaram na 1.3.17, segundo o teste do usuário. A música continua em investigação; a 1.3.18 traz um ajuste de caminhos externos e diagnóstico específico para acompanhar o próximo teste.
 
 ### O que você encontra no aplicativo
 
@@ -40,13 +40,13 @@ O projeto é mantido por **W1/W2 Soluções Capitais**. A camada própria tem c�
 | Kaguya | Subconjunto cosmético: estilos, retratos e efeitos de áudio |
 | Sessão | Reinício, retorno aos servidores e acesso à recarga oficial |
 
-### Nesta versão: 1.3.17
+### Nesta versão: 1.3.18
 
-A atualização corrige a adaptação dos tipos de áudio. `Sound` permanece nativo nas superclasses, assinaturas e conversões usadas pelos sons embutidos. A resolução de caminhos externos atua somente nas construções estáticas reconhecidas de `new Sound(...)`.
+O resolvedor passa a reconhecer endereços do CDN oficial que começam com `//cdnnaruto-pt.oasgames.com/`. No AIR, esses caminhos não têm o contexto de uma página para fornecer o protocolo. Agora seguem a mesma rota dos endereços HTTPS, com versão e parâmetros preservados. Outros hosts permanecem fora dessa alteração.
 
-Os **15 SWFs de áudio do Kaguya atravessam o adaptador sem alteração de bytes**. A verificação independente também cobre construções externas, casts, desvios, switches e handlers. Ao voltar do segundo plano, o aplicativo reaplica o estado de áudio escolhido.
+**COPIAR DIAGNÓSTICO DE ÁUDIO**, em CONTROLES, reúne as chamadas de som externo e os resultados das transferências de áudio. O registro é limitado, fica em memória e só é copiado após um toque. Não inclui cabeçalhos, cookies, parâmetros de URL nem bytes de mídia.
 
-Os recursos anteriores de portal, controles, cache e renderização continuam na base. O FSR permanece opcional e desligado a cada abertura.
+A preservação do Sound nativo introduzida na 1.3.17 continua: tipos, conversões, superclasses e os 15 SWFs de áudio Kaguya conservam sua estrutura. O ajuste atual ainda precisa ser testado na trilha do jogo; não foi confirmado como solução para a música ausente.
 
 <details>
 <summary><strong>Guia de leitura</strong></summary>
@@ -73,13 +73,13 @@ Use o APK fornecido pelo mantenedor. Confira os requisitos abaixo e siga o fluxo
 O acesso depende de internet, uma conta válida e disponibilidade do portal, CDN e servidor. O cache ajuda na reabertura de recursos, mas não oferece uma sessão offline.
 
 <details>
-<summary><strong>Identificação do APK 1.3.17</strong></summary>
+<summary><strong>Identificação do APK 1.3.18</strong></summary>
 
 | Campo | Valor |
 | --- | --- |
-| Arquivo | `NarutoOnline_RealmeC71_1.3.17.apk` |
+| Arquivo | `NarutoOnline_RealmeC71_1.3.18.apk` |
 | Pacote Android | `air.br.davi.narutoair.c71r2` |
-| versionCode | `1003017` |
+| versionCode | `1003018` |
 | Tamanho do arquivo | 12.767.250 bytes — aproximadamente 12,18 MiB |
 | Arquitetura | `arm64-v8a` |
 | Assinatura verificada | APK Signature Scheme v2 |
@@ -87,7 +87,7 @@ O acesso depende de internet, uma conta válida e disponibilidade do portal, CDN
 **SHA-256 do APK**
 
 ```text
-a3c0eed5f3865695e6af0130b4e26aceaad26bb3168dab11c94196fa572955c9
+1f89a59d7da87c47a7ae2b320378f28f292d7e95aa474d9e6c8825b7aa6eec3c
 ```
 
 **SHA-256 do certificado**
@@ -251,7 +251,7 @@ As instruções do pacote original indicam gratuidade e proíbem obter benefíci
 
 ## Áudio
 
-Os sons embutidos precisam conservar a ligação entre os dados `DefineSound`, a exportação `SymbolClass` e a classe Sound do runtime. A **1.3.17 preserva essa ligação** e mantém `Sound` nativo nos tipos, casts e superclasses.
+Os sons embutidos precisam conservar a ligação entre os dados `DefineSound`, a exportação `SymbolClass` e a classe Sound do runtime. A **1.3.18 preserva essa ligação** e mantém `Sound` nativo nos tipos, casts e superclasses.
 
 `BrowserSound` resolve as URLs de construções externas estáticas reconhecidas. Continua sendo uma subclasse do Sound nativo e conserva canais, posição, repetições, `SoundTransform` e eventos. Expressões dinâmicas ou ambíguas permanecem no caminho nativo.
 
@@ -264,9 +264,11 @@ Quando um novo índice de bytecode amplia um operando, o adaptador recalcula os 
 3. Use **TESTAR SOM**. Ele envia um tom PCM curto, baixo, sem depender de rede ou do mod.
 4. Confira música e efeitos nas configurações internas do jogo.
 
+Se os efeitos funcionarem e a música continuar muda, entre no mapa com música ativada e aguarde o carregamento. Depois, use **CONTROLES → COPIAR DIAGNÓSTICO DE ÁUDIO** e cole o texto ao relatar o problema. Ele informa os resultados HTTP, a quantidade de bytes transferidos e se as chamadas interceptadas iniciaram um canal. A ausência de registros também é útil: pode indicar um caminho de reprodução que ainda não passa pelo adaptador. O botão não reinicia nem força a música.
+
 O aplicativo salva SOM ON/OFF, reaplica o estado ao retornar do segundo plano e encerra os canais ao abandonar o cliente. O teste local ajuda a separar problemas de saída de mídia daqueles ligados a recursos ou categorias do jogo.
 
-Os MP3 analisados foram decodificados para PCM não silencioso. A integridade dos arquivos e a adaptação foram verificadas; **a reprodução final da 1.3.17 em Android ainda não foi confirmada nesta validação**.
+Os MP3 de efeitos analisados foram decodificados para PCM não silencioso. O usuário confirmou que os efeitos voltaram com a 1.3.17, mas a música continuou ausente. A reprodução da trilha na 1.3.18 ainda depende do teste no aparelho.
 
 ## Arquitetura
 
@@ -369,7 +371,7 @@ Remova senhas, cookies, tokens, e-mails de conta e parâmetros de autenticação
 
 ### Assinatura e Play Protect
 
-O APK 1.3.17 passou pela verificação de assinatura v2. Isso permite conferir a integridade e o certificado daquele arquivo; não substitui uma auditoria de todos os componentes.
+O APK 1.3.18 passou pela verificação de assinatura v2. Isso permite conferir a integridade e o certificado daquele arquivo; não substitui uma auditoria de todos os componentes.
 
 A distribuição fora da Play Store pode exibir avisos sobre desenvolvedor desconhecido. Não há garantia de que mudar nome, ícone ou recompilar retire esses avisos. Confira a origem do APK e a mensagem exibida pelo Android ao avaliar a instalação.
 
@@ -483,6 +485,7 @@ Estes testes utilizam lógica própria e fixtures locais:
 ```bash
 node resource-tests/test-resources.mjs
 node resource-tests/test-audio.mjs
+node resource-tests/test-audio-diagnostics.mjs
 node resource-tests/test-launch-parameters.mjs
 node resource-tests/test-portal-access.mjs
 node resource-tests/test-login-recovery.mjs
@@ -517,8 +520,8 @@ O resultado registra o backend utilizado em `fsr/GPU_VALIDATION.json`. Sem execu
 <summary><strong>Conferir um APK gerado</strong></summary>
 
 ```bash
-sha256sum NarutoOnline_RealmeC71_1.3.17.apk
-java -jar "$AIR_HOME/lib/android/lib/apksigner.jar" verify --verbose --print-certs NarutoOnline_RealmeC71_1.3.17.apk
+sha256sum NarutoOnline_RealmeC71_1.3.18.apk
+java -jar "$AIR_HOME/lib/android/lib/apksigner.jar" verify --verbose --print-certs NarutoOnline_RealmeC71_1.3.18.apk
 ```
 
 Confira também pacote, versionCode, ABI e permissões com as ferramentas Android. Compare o hash somente com o arquivo exato ao qual ele se refere.
@@ -533,13 +536,13 @@ Confira também pacote, versionCode, ABI e permissões com as ferramentas Androi
 | Controles | Foco, entrada, coordenadas, arrasto e preferências em modelos de teste |
 | Transporte | HTTP, socket, cache, limites, exclusões e retorno aos recursos oficiais |
 | SWF/ABC | Fixtures compiladas, idempotência, preservação e leitura independente |
-| Áudio 1.3.17 | 15 SWFs Kaguya intactos; seis construções externas, tipos nativos e realocação de controle de fluxo |
+| Áudio | 15 SWFs Kaguya intactos; seis construções externas, tipos nativos e realocação de controle de fluxo; endereços sem protocolo e diagnóstico limitado |
 | FSR | Shaders em Mesa llvmpipe, restauração de estado GL e hook EGL14 |
 | Empacotamento | DEX, bootstrap e recursos conferidos; assinatura v2 validada |
 
 Os testes JVM e Node verificam partes do comportamento com fixtures e modelos. A inspeção do APK confirma o que entrou no pacote. Nenhuma dessas etapas substitui o teste de sessão, som e apresentação em um Android real.
 
-Há relatos de funcionamento do jogo durante o desenvolvimento. Ainda faltam uma matriz de compatibilidade, benchmarks reproduzíveis em GPUs Android e confirmação audível da correção 1.3.17 no aparelho.
+Há relatos de funcionamento do jogo durante o desenvolvimento. Ainda faltam uma matriz de compatibilidade, benchmarks reproduzíveis em GPUs Android e confirmação da música na 1.3.18 no aparelho.
 
 ### Comparar desempenho
 
@@ -631,6 +634,6 @@ Para falhas reproduzíveis e sugestões, use as [Issues do projeto](https://gith
 <div align="center">
 
 **W1/W2 Soluções Capitais**  
-Naruto Online Mobile · documentação da base 1.3.17
+Naruto Online Mobile · documentação da base 1.3.18
 
 </div>

@@ -10,6 +10,7 @@ package br.davi.narutoair.compat {
         private static var reporter:Function;
         private static var requests:uint=0,completed:uint=0,errors:uint=0,closed:uint=0,lines:uint=0;
         private static var pending:Array=[];
+        private static var audioLines:Array=[];
 
         public static function configure(original:String,runtime:String):void {
             disable();
@@ -21,12 +22,16 @@ package br.davi.narutoair.compat {
 
         public static function disable():void {
             officialRoot="";runtimeRoot="";folder="";reporter=null;
-            requests=0;completed=0;errors=0;closed=0;lines=0;pending=[];
+            requests=0;completed=0;errors=0;closed=0;lines=0;pending=[];audioLines=[];
         }
 
         public static function resolve(value:String):String {
             if(!folder || !value || /[\x00-\x20\\]/.test(value)) return value;
             var path:String=value;
+            // Protocol-relative CDN URLs have no browser document scheme in AIR.
+            // Resolve only the exact validated CDN; foreign authorities stay intact.
+            var cdnAuthority:String="//"+officialRoot.substr(8)+"/";
+            if(path.indexOf(cdnAuthority)==0) path="https:"+path;
             if(path.indexOf(officialRoot+"/")==0) path=path.substr(officialRoot.length);
             else if(path.indexOf("http://"+officialRoot.substr(8)+"/")==0) path=path.substr(officialRoot.length-1);
             else if(path.indexOf(runtimeRoot+"/")==0) path=path.substr(runtimeRoot.length);
@@ -77,7 +82,7 @@ package br.davi.narutoair.compat {
         public static function setReporter(value:Function):void {reporter=value;}
 
         private static function safePath(url:String):String {
-            return (url || "").split(/[?#]/)[0].replace(/^(https?:\/\/)[^\/@]+@/,"$1").substr(0,220);
+            return (url || "").split(/[?#]/)[0].replace(/^(?:[a-z][a-z0-9+.-]*:)?\/\/[^\/]*/i,"").substr(0,220);
         }
 
         private static function addPending(kind:String,url:String):void {
@@ -94,6 +99,10 @@ package br.davi.narutoair.compat {
         }
 
         public static function note(kind:String,phase:String,url:String,status:int=0):void {
+            if(kind=="Sound") {
+                if(audioLines.length>=64)audioLines.shift();
+                audioLines.push(phase+" "+safePath(url)+(status?"; code="+status:""));
+            }
             if(reporter==null)return;
             var path:String=safePath(url);
             if(phase=="REQUEST"){requests++;addPending(kind,url);}
@@ -106,6 +115,10 @@ package br.davi.narutoair.compat {
                 lines++;
                 reporter("RESOURCE 1.3.13: "+kind+" "+phase+" "+path+(status?"; code="+status:""));
             }
+        }
+
+        public static function audioSummary():String {
+            return audioLines.length ? audioLines.join("\n") : "Nenhuma chamada de Sound externo capturada pelo adaptador.";
         }
 
         public static function summary():String {

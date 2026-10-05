@@ -34,16 +34,20 @@ package br.davi.narutoair.compat {
             BrowserResources.note("Sound","REQUEST",requestUrl);
         }
         private function onComplete(event:Event):void {finish("COMPLETE");}
-        private function onError(event:Event):void {finish("ERROR");}
-        private function finish(phase:String):void {
+        private function onError(event:Event):void {
+            var code:int=event is IOErrorEvent ? IOErrorEvent(event).errorID : event is SecurityErrorEvent ? SecurityErrorEvent(event).errorID : 0;
+            finish("ERROR",code);
+        }
+        private function finish(phase:String,code:int=0):void {
             if(!active)return;
-            active=false;delete loading[this];BrowserResources.note("Sound",phase,requestUrl);
+            active=false;delete loading[this];BrowserResources.note("Sound",phase,requestUrl,code);
         }
         override public function close():void {
             super.close();finish("CLOSE");
         }
         override public function play(startTime:Number=0,loops:int=0,sndTransform:SoundTransform=null):SoundChannel {
             var channel:SoundChannel=super.play(startTime,loops,sndTransform);
+            BrowserResources.note("Sound",channel!=null?"PLAY":"PLAY_NULL",requestUrl);
             if(channel!=null) {
                 channels[channel]=true;
                 channel.addEventListener(Event.SOUND_COMPLETE,channelComplete,false,0,true);

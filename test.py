@@ -3,6 +3,7 @@ import os, subprocess, tempfile
 root=Path(__file__).resolve().parent
 subprocess.run(["node",str(root/"resource-tests/test-resources.mjs")],check=True)
 subprocess.run(["node",str(root/"resource-tests/test-audio.mjs")],check=True)
+subprocess.run(["node",str(root/"resource-tests/test-audio-diagnostics.mjs")],check=True)
 subprocess.run(["node",str(root/"resource-tests/test-launch-parameters.mjs")],check=True)
 subprocess.run(["node",str(root/"resource-tests/test-browser-page.mjs")],check=True)
 subprocess.run(["node",str(root/"resource-tests/test-session-cookie.mjs")],check=True)
@@ -32,6 +33,7 @@ with tempfile.TemporaryDirectory(prefix="naruto-tests-") as temp:
     cp=str(classes)+os.pathsep+str(lzma)
     run([java,"-cp",cp,"br.davi.narutoair.portal.CompatibilityTest",str(work/"BrowserEntry.swf"),str(work/"PlainEntry.swf"),str(work/"adapted.swf")])
     run([java,"-Xmx24m","-cp",cp,"br.davi.narutoair.portal.TransportTest"])
+    run([java,"-cp",cp,"br.davi.narutoair.portal.AudioResourceLogTest"])
     run([java,"-Xmx24m","-cp",cp,"br.davi.narutoair.portal.KaguyaCacheTest",str(root)])
     bridge=work/"bridge";bridge.mkdir()
     stub_sources=list((root/"bridge-tests/stubs").rglob("*.java"))

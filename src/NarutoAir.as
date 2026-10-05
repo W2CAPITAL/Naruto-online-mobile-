@@ -122,7 +122,7 @@ package
          BrowserSecurity.configure(null);
          // Keep all dynamically retargeted client class definitions in the parent domain.
          var resourceClasses:Array=[BrowserURLLoader,BrowserURLStream,BrowserSocket,BrowserSound];
-         log("Naruto AIR C71 1.3.17 - carregamento dos modulos no AIR");
+         log("Naruto AIR C71 1.3.18 - carregamento dos modulos no AIR");
          try
          {
             _loc2_ = getDefinitionByName("br.davi.narutoair.portal.PortalMarker") as Class;
@@ -157,12 +157,12 @@ package
             log("ERRO open #" + openErr.errorID + ": " + openErr.message);
          }
          graphicsProfile=new GraphicsProfile(stage,this,stageBaseline,function(percent:int):Boolean {return bridge && bridge.graphicsScale(percent)===true;},null,function(choice:Number):Boolean{return bridge && bridge.graphicsFPS(choice)===true;},function(enabled:Boolean,epoch:int):Boolean{return bridge && bridge.graphicsFSR(enabled,epoch)===true;});
-         controls=new MobileControls(stage,function(a:String,x:Number,y:Number,key:int):Boolean {return bridge && bridge.input(a,String(x),String(y),String(key))===true;},restartPortal,switchAccount,graphicsProfile,openRecharge,function(enabled:Boolean,style:int):Boolean{return bridge && bridge.kaguyaMode(enabled,style)===true;});
+         controls=new MobileControls(stage,function(a:String,x:Number,y:Number,key:int):Boolean {return bridge && bridge.input(a,String(x),String(y),String(key))===true;},restartPortal,switchAccount,graphicsProfile,openRecharge,function(enabled:Boolean,style:int):Boolean{return bridge && bridge.kaguyaMode(enabled,style)===true;},function():Object {return bridge ? bridge.audioDiagnostic() : "Indisponivel";});
          stage.addChild(controls);
          controls.visible=false;
          for(var baselineIndex:int=0;baselineIndex<stage.numChildren;baselineIndex++)stageBaseline.push(stage.getChildAt(baselineIndex));
-         stage.addEventListener(Event.ACTIVATE,function(e:Event):void {AudioSession.start();report("APP ACTIVATE 1.3.17");});
-         stage.addEventListener(Event.DEACTIVATE,function(e:Event):void {report("APP DEACTIVATE 1.3.17");});
+         stage.addEventListener(Event.ACTIVATE,function(e:Event):void {AudioSession.start();report("APP ACTIVATE 1.3.18");});
+         stage.addEventListener(Event.DEACTIVATE,function(e:Event):void {report("APP DEACTIVATE 1.3.18");});
          pollTimer = new Timer(700);
          pollTimer.addEventListener("timer",pollNativeStatus);
          pollTimer.start();
@@ -294,6 +294,7 @@ package
             BrowserSocket.configure(null);
             if(!validEntryPair(param1, originalSwf)) throw new Error("Entrada SWF fora do CDN oficial ou proxy local invalido.");
             BrowserResources.configure(originalSwf,param1);
+            if(bridge)bridge.audioDiagnostic("reset");
             BrowserResources.setReporter(null);
             AudioSession.start();
             loader = new BrowserLoader();
@@ -314,7 +315,7 @@ package
             rechargeServer=String(param2.zone_id || "");
             report("CLIENT WEB BRIDGE: identidade obtida da pagina oficial; modo web habilitado para o cliente.");
             importedParams=countKeys(_loc10_);
-            report("PARAMS 1.3.17: URL + FlashVars preservados; URL="+countKeys(BrowserLaunchParameters.merge(originalSwf,null))+"; FlashVars="+countKeys(param2 || {})+"; total="+importedParams+"; valores omitidos.");
+            report("PARAMS 1.3.18: URL + FlashVars preservados; URL="+countKeys(BrowserLaunchParameters.merge(originalSwf,null))+"; FlashVars="+countKeys(param2 || {})+"; total="+importedParams+"; valores omitidos.");
             var parameterNames:Array=[];
             for(var parameterName:String in _loc10_) {
                if(/^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/.test(parameterName))parameterNames.push(parameterName);
@@ -365,7 +366,7 @@ package
             _loc8_.allowCodeImport = true;
             _loc8_.parameters = _loc10_;
             BrowserLoader.configure(adaptClientBytes,null,_loc8_.applicationDomain,failEntry,stage);
-            report("RUNTIME 1.3.17: AIR="+Capabilities.version+"; ContextMenu="+ContextMenu.isSupported+"; playerType="+Capabilities.playerType+"; ExternalInterface="+ExternalInterface.available+"; perfil web anunciado=Flash 21.0.0.213");
+            report("RUNTIME 1.3.18: AIR="+Capabilities.version+"; ContextMenu="+ContextMenu.isSupported+"; playerType="+Capabilities.playerType+"; ExternalInterface="+ExternalInterface.available+"; perfil web anunciado=Flash 21.0.0.213");
             report("Solicitando SWF real com sessao do portal...");
             log("Cookie nativo: " + (param3 ? "SIM (" + param3.length + " chars)" : "NAO"));
             log("User-Agent recebido do WebView: " + (param5 ? "SIM" : "NAO"));
@@ -427,10 +428,10 @@ package
          var adapted:Boolean=false;
          for each(var header:URLRequestHeader in event.responseHeaders) {
             if(header.name.toLowerCase() == "x-naruto-air-compat") {
-               report("ENTRY ADAPTER 1.3.17: referencias compat=" + header.value);adapted=true;
+               report("ENTRY ADAPTER 1.3.18: referencias compat=" + header.value);adapted=true;
             }
          }
-         if(event.status == 200 && !adapted) report("ENTRY ADAPTER 1.3.17: resposta sem adaptacao; chamadas do navegador podem falhar.");
+         if(event.status == 200 && !adapted) report("ENTRY ADAPTER 1.3.18: resposta sem adaptacao; chamadas do navegador podem falhar.");
          if(event.status >= 400) failEntry("HTTP ERROR SWF: " + event.status);
       }
 
@@ -443,7 +444,7 @@ package
             // Keep only static entry code, never the session, cookies or FlashVars.
             entrySnapshot=null;
             entryBytes.position = 0;
-            report("SWF BYTES 1.3.17: entrada oficial validada; executando no sandbox do AIR.");
+            report("SWF BYTES 1.3.18: entrada oficial validada; executando no sandbox do AIR.");
             loader.loadBytes(entryBytes, entryContext);
             releaseDownload();
          } catch(err:Error) { failEntry("SWF BYTES falhou #" + err.errorID + ": " + err.message); }
@@ -544,7 +545,7 @@ package
          if(failed || !loader) return;
          try {
             if(!loader.content || loader.content.stage !== stage) throw new Error("Cliente sem acesso ao Stage do AIR.");
-            report("SWF INIT 1.3.17: Stage acessivel; entrada iniciou, modulos do jogo ainda podem carregar.");
+            report("SWF INIT 1.3.18: Stage acessivel; entrada iniciou, modulos do jogo ainda podem carregar.");
             logField.visible=false;
 
             hidePortal();
@@ -557,7 +558,7 @@ package
          if(failed || !loader) return;
          stopLoadTimeout();
          releaseDownload();
-         report("ENTRY COMPLETE 1.3.17: entrada carregada; nao significa que todos os recursos do jogo terminaram.");
+         report("ENTRY COMPLETE 1.3.18: entrada carregada; nao significa que todos os recursos do jogo terminaram.");
          hidePortal();
          if(loader && !contains(loader))
          {
@@ -584,7 +585,7 @@ package
          entrySave.addEventListener(Event.COMPLETE,onEntrySaveFinished);
          entrySave.addEventListener(Event.CANCEL,onEntrySaveFinished);
          entrySave.addEventListener(IOErrorEvent.IO_ERROR,onEntrySaveFinished);
-         try {entrySave.save(entrySnapshot,"Naruto-entry-1.3.17.swf");}
+         try {entrySave.save(entrySnapshot,"Naruto-entry-1.3.18.swf");}
          catch(error:Error){report("ENTRY SAVE ERROR: #"+error.errorID);onEntrySaveFinished(new IOErrorEvent(IOErrorEvent.IO_ERROR));}
       }
 
@@ -638,7 +639,7 @@ package
          diagnosticSnapshot();
          try {
             Clipboard.generalClipboard.clear();
-            var copied:Boolean=Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT,"Naruto AIR 1.3.17 — diagnostico de handshake\n"+diagnosticLines.join("\n"));
+            var copied:Boolean=Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT,"Naruto AIR 1.3.18 — diagnostico de handshake\n"+diagnosticLines.join("\n"));
             diagnosticButton.text=copied?"COPIADO":"COPIA FALHOU";
          }catch(error:Error){diagnosticButton.text="COPIA FALHOU";report("DIAG COPY ERROR: #"+error.errorID);}
       }
