@@ -2,7 +2,7 @@
 
 **Cliente Android comunitário para executar o cliente Flash de Naruto Online BR no próprio celular, com login pelo portal, controles de toque e uma camada de compatibilidade AIR/AVM2.**
 
-Mantido por **W1/W2 Soluções Capitais**. Documentação da base **1.3.16**, revisada em **4 de outubro de 2026**.
+Mantido por **W1/W2 Soluções Capitais**. Documentação da base **1.3.17**, revisada em **4 de outubro de 2026**.
 
 | Produto | Plataforma | Código publicado | Situação |
 | --- | --- | --- | --- |
@@ -62,7 +62,7 @@ Não há streaming remoto do jogo, Ruffle, emulação de Windows, servidor priva
 
 Os requisitos abaixo separam **restrições reais do pacote** de fatores de desempenho ainda sem medição suficiente. Um aparelho que permite instalar o APK pode continuar sem conseguir sustentar uma sessão fluida.
 
-### Requisitos confirmados da base 1.3.16
+### Requisitos confirmados da base 1.3.17
 
 | Item | Requisito | Como foi determinado |
 | --- | --- | --- |
@@ -83,7 +83,7 @@ O alvo declarado é **API 35**. Isso não exige Android 15: `targetSdkVersion` e
 
 Não há um mínimo numérico de RAM, frequência de CPU, modelo de GPU ou tamanho total instalado validado por uma matriz de aparelhos. Por isso, o projeto **não promete que 2 GB, 3 GB, 4 GB ou qualquer outro número seja suficiente**. Memória disponível para o processo, temperatura, resolução da tela, driver e recursos carregados na cena influenciam o resultado.
 
-O APK 1.3.16 de referência tem **12.763.154 bytes, aproximadamente 12,17 MiB**. O cache estático próprio tem teto de **64 MiB**, mas esse teto não inclui WebView, memória de SWF, texturas, áudio nem todos os dados privados do aplicativo. Não se deve usar 64 MiB como requisito de armazenamento total ou de RAM.
+O APK 1.3.17 de referência tem **12.767.250 bytes, aproximadamente 12,18 MiB**. O cache estático próprio tem teto de **64 MiB**, mas esse teto não inclui WebView, memória de SWF, texturas, áudio nem todos os dados privados do aplicativo. Não se deve usar 64 MiB como requisito de armazenamento total ou de RAM.
 
 Para validar um aparelho, registre RAM total, RAM disponível, modelo do SoC, versão do Android, WebView, resolução e taxa da tela. Teste login, carregamento, batalha, menus com muitos ninjas, áudio, recarga e retorno do segundo plano. Só depois de testes repetidos é possível estabelecer um perfil mínimo de desempenho confiável.
 
@@ -123,10 +123,10 @@ Não é necessário instalar um plugin Flash separado: o APK utiliza um runtime 
 
 | Campo | Valor |
 | --- | --- |
-| Versão | `1.3.16` |
+| Versão | `1.3.17` |
 | versionCode verificado | `1003016` |
 | Pacote | `air.br.davi.narutoair.c71r2` |
-| Arquivo histórico | `NarutoOnline_RealmeC71_1.3.16.apk` |
+| Arquivo histórico | `NarutoOnline_RealmeC71_1.3.17.apk` |
 | Assinatura | APK Signature Scheme v2 verificado na geração |
 | SHA-256 do APK | `ab3ee88e9147a8815e32a894c13a5ec405291847904cf52d345c37ae9425c49d` |
 | SHA-256 do certificado | `1b4b528b92aa1ea13753798cbb701d66589333f7b2d8afb3a750aa1c83642c29` |
@@ -301,17 +301,15 @@ O mod não altera saldo, servidor, conta, inventário ou regras de combate.
 
 ## Música, efeitos e áudio
 
-A base 1.3.16 introduz `BrowserSound`, que mantém a execução de som nativa e resolve URLs de áudio para o transporte de recursos. Referências de classes Sound são adaptadas sem substituir amostras MP3, símbolos ou eventos por áudio artificial.
+A **1.3.17 corrige a regressão de tipos de áudio introduzida na 1.3.16**. A troca global de `flash.media.Sound` também atingia superclasses, assinaturas e conversões dos sons embutidos. Agora esses usos continuam apontando para o **Sound nativo**, preservando a ligação entre `DefineSound`, `SymbolClass` e a classe exportada de cada arquivo.
 
-`AudioSession` utiliza o modo de áudio de mídia, oferece **SOM ON/OFF** persistido e encerra canais/streams ao abandonar o cliente. **TESTAR SOM** gera um tom PCM curto, de aproximadamente 0,25 segundo e baixo volume, para verificar a saída nativa sem depender de rede ou do mod.
+Somente expressões estáticas pareadas de `new Sound(...)` recebem `BrowserSound`, que resolve URLs externas pelo transporte já validado. O objeto continua sendo uma subclasse de Sound, mantendo canais, parâmetros de reprodução, loops e eventos nativos. Referências dinâmicas ou expressões ambíguas permanecem nativas. O adaptador não reescreve casts, `is Sound`, retornos, tipos de variáveis nem superclasses. Quando um índice novo alarga um operando, os desvios, switches e limites de handlers são recalculados e verificados por um parser independente.
 
-Existem três controles distintos: volume de mídia do Android, estado SOM do aplicativo e volumes/categorias do próprio jogo. Um deles silenciado pode impedir a reprodução mesmo quando o recurso foi baixado corretamente.
+`AudioSession` usa a saída **MEDIA**, oferece **SOM ON/OFF** persistido e encerra canais/streams ao abandonar o cliente. Ao retornar do segundo plano, reaplica o estado de áudio escolhido. **TESTAR SOM** envia um tom PCM curto e baixo pelo Sound nativo, sem rede ou mod. O volume de mídia do Android e as categorias de música/efeitos das configurações do jogo continuam relevantes.
 
-Os 15 MP3 do subconjunto Kaguya foram decodificados para PCM não silencioso; comprimentos, símbolos e bytecode foram conferidos em verificações independentes. Isso confirma integridade dos arquivos analisados, **não confirma que a reprodução final foi ouvida em um Android**.
+Os **15 arquivos SWF de áudio reais do Kaguya passam pelo adaptador sem alteração de um único byte**. A verificação independente confirma superclasse Sound nativa, MP3, amostras, símbolos e construtores. Uma fixture compilada verifica seis construções externas, casts nativos e realocação de desvios/handlers com operandos alargados. Os testes gerais de rede, controles, portal e gráficos também passaram.
 
-Nesta validação, não houve reprodução integral do cliente no aparelho e uma consulta ao CDN oficial retornou 403. A correção de áudio está implementada, mas a causa de todo silêncio relatado no aparelho ainda não foi reproduzida e encerrada experimentalmente.
-
-Se TESTAR SOM funcionar e o jogo continuar silencioso, a investigação deve avançar para categorias de áudio, caminhos, respostas da rede, criação do Sound e início do SoundChannel. Se o teste local também não funcionar, verifique primeiro a saída de mídia e o ciclo de vida da sessão. Não se deve concluir que há uma trilha Kaguya ausente apenas porque os efeitos do mod foram integrados.
+**Limite da validação:** não houve reprodução audível no Realme ou em outro Android nesta execução. Os testes confirmam a correção no código e a integridade dos arquivos; a saída final precisa ser confirmada no aparelho. O subconjunto Kaguya contém os efeitos descritos no manifesto; isso não comprova a presença de uma trilha musical adicional no pacote.
 
 ## Rede, cache e carregamento
 
@@ -497,8 +495,8 @@ O build compila classes próprias, adapta classes históricas, gera SWC/ANE, com
 Com as ferramentas Android/AIR adequadas, verifique manifesto, ABI, versão e certificado. Exemplos de comandos, ajustando os caminhos:
 
 ```bash
-sha256sum NarutoOnline_RealmeC71_1.3.16.apk
-java -jar "$AIR_HOME/lib/android/lib/apksigner.jar" verify --verbose --print-certs NarutoOnline_RealmeC71_1.3.16.apk
+sha256sum NarutoOnline_RealmeC71_1.3.17.apk
+java -jar "$AIR_HOME/lib/android/lib/apksigner.jar" verify --verbose --print-certs NarutoOnline_RealmeC71_1.3.17.apk
 ```
 
 A identidade da assinatura é necessária para atualizações. Um hash de arquivo só deve ser comparado ao artefato exato ao qual se refere.

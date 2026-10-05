@@ -78,14 +78,14 @@ with tempfile.TemporaryDirectory(prefix="naruto-transport-") as tmp:
     updated = Path(tmp) / "portal.jar"
     with zipfile.ZipFile(root / "portal.jar") as original, zipfile.ZipFile(updated, "w", zipfile.ZIP_DEFLATED) as jar:
         for info in original.infolist():
-            if not info.filename.startswith(("br/davi/narutoair/portal/RuntimeTransport", "br/davi/narutoair/portal/EntryCompatibility", "br/davi/narutoair/portal/MobileMenuCompatibility", "br/davi/narutoair/portal/KaguyaResources", "br/davi/narutoair/portal/StaticAssetCache", "br/davi/narutoair/portal/KaguyaBridge",
+            if not info.filename.startswith(("br/davi/narutoair/portal/RuntimeTransport", "br/davi/narutoair/portal/EntryCompatibility", "br/davi/narutoair/portal/MobileMenuCompatibility", "br/davi/narutoair/portal/SoundConstructorCompatibility", "br/davi/narutoair/portal/KaguyaResources", "br/davi/narutoair/portal/StaticAssetCache", "br/davi/narutoair/portal/KaguyaBridge",
                 "br/davi/narutoair/portal/MobilePortalContext", "br/davi/narutoair/portal/AdaptSwfBytes",
                 "br/davi/narutoair/portal/BrowserPageBridge", "br/davi/narutoair/portal/MobileInputBridge", "br/davi/narutoair/portal/PortalHealth", "br/davi/narutoair/portal/PortalLoginRecovery",
                 "br/davi/narutoair/portal/PortalAccess", "br/davi/narutoair/portal/PortalExtension", "br/davi/narutoair/portal/PortalSession", "br/davi/narutoair/portal/NativeFloatingButton", "br/davi/narutoair/portal/GraphicsBridge", "br/davi/narutoair/portal/FsrBridge", "br/davi/narutoair/fsr/", "br/davi/narutoair/portal/WindowRefresh", "br/davi/narutoair/portal/PortalBranding", "SevenZip/")):
                 jar.writestr(info,patched.get(info.filename,original.read(info.filename)))
         for p in sorted(classes.rglob("*.class")):
             name = p.relative_to(classes).as_posix()
-            if name.startswith(("br/davi/narutoair/portal/RuntimeTransport", "br/davi/narutoair/portal/EntryCompatibility", "br/davi/narutoair/portal/MobileMenuCompatibility", "br/davi/narutoair/portal/KaguyaResources", "br/davi/narutoair/portal/StaticAssetCache", "br/davi/narutoair/portal/KaguyaBridge")):
+            if name.startswith(("br/davi/narutoair/portal/RuntimeTransport", "br/davi/narutoair/portal/EntryCompatibility", "br/davi/narutoair/portal/MobileMenuCompatibility", "br/davi/narutoair/portal/SoundConstructorCompatibility", "br/davi/narutoair/portal/KaguyaResources", "br/davi/narutoair/portal/StaticAssetCache", "br/davi/narutoair/portal/KaguyaBridge")):
                 jar.writestr(name, p.read_bytes())
         for p in sorted(bridge_classes.rglob("*.class")):
             jar.writestr(p.relative_to(bridge_classes).as_posix(),p.read_bytes())
@@ -113,7 +113,7 @@ run(adt + ["-package", "-target", "ane", str(root / "extensions/NativePortal.ane
     str(root / "extension.xml"), "-swc", str(root / "NativePortal.swc"), "-platform", "Android-ARM64",
     "-platformoptions", str(root / "platform.xml"), "-C", str(root), "portal.jar", "library.swf"], "extension.log")
 with tempfile.TemporaryDirectory(prefix="naruto-apk-") as temp:
-    artifact="NarutoOnline_RealmeC71_1.3.16.apk"
+    artifact="NarutoOnline_RealmeC71_1.3.17.apk"
     staged=Path(temp)/artifact
     runtime_jar=sdk/"lib/android/lib/runtimeClasses.jar"
     patched=Path(temp)/"runtime-fsr.jar"

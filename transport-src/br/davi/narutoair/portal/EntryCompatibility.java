@@ -126,7 +126,8 @@ public final class EntryCompatibility {
     }
     private static Result adaptAbc(byte[] abc) throws IOException {
         MobileMenuCompatibility.Result menu=MobileMenuCompatibility.adapt(abc);
-        abc=menu.bytes;
+        SoundConstructorCompatibility.Result audio=SoundConstructorCompatibility.adapt(menu.bytes);
+        abc=audio.bytes;
         Cursor c=new Cursor(abc);
         int minor=c.u16(),major=c.u16();
         if((major!=46 && major!=47) || (minor!=16 && minor!=17)) throw new IOException("ABC version unsupported");
@@ -185,7 +186,7 @@ public final class EntryCompatibility {
             names.write(abc,start,c.pos-start);
         }
         int references=0;for(int count:counts)references+=count;
-        if(references==0) return new Result(abc,0,0,0,0,menu.guards);
+        if(references==0) return new Result(abc,0,0,0,0,menu.guards,0,audio.constructors);
         ByteArrayOutputStream out=new ByteArrayOutputStream();
         out.write(abc,0,stringsStart);put30(out,Math.max(1,stringCount)+1+TARGETS.length);
         copyPoolPayload(out,abc,stringsStart,stringsEnd);
@@ -196,7 +197,7 @@ public final class EntryCompatibility {
         copyPoolPayload(out,abc,setsStart,setsEnd);
         for(int[] s:extraSets){put30(out,s.length);for(int ns:s)put30(out,ns);}
         names.writeTo(out);out.write(abc,c.pos,abc.length-c.pos);
-        return new Result(out.toByteArray(),counts[0],counts[1],counts[2]+counts[3],counts[4],menu.guards,counts[5],counts[6]);
+        return new Result(out.toByteArray(),counts[0],counts[1],counts[2]+counts[3],counts[4],menu.guards,counts[5],audio.constructors);
     }
     private static int adapter(int ns,int className,int[] kind,int[] name,List<String> strings) {
         if(ns==0 || (kind[ns]!=0x16 && kind[ns]!=8))return -1;
@@ -207,7 +208,7 @@ public final class EntryCompatibility {
         if(namespace.equals("flash.net") && type.equals("URLStream"))return 3;
         if(namespace.equals("flash.external") && type.equals("ExternalInterface"))return 4;
         if(namespace.equals("flash.net") && type.equals("Socket"))return 5;
-        if(namespace.equals("flash.media") && type.equals("Sound"))return 6;
+        // Native Sound is a type and a symbol superclass, never a global alias.
         return -1;
     }
     private static void copyPoolPayload(OutputStream out,byte[] abc,int start,int end) throws IOException {

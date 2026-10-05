@@ -18,8 +18,9 @@ public final class AudioAssetVerification {
   try(java.util.stream.Stream<Path> paths=Files.list(Paths.get(args[0]))){
    for(Path p:(Iterable<Path>)paths.filter(v->v.toString().endsWith(".swf"))::iterator){
     byte[] original=Files.readAllBytes(p);EntryCompatibility.Result result=EntryCompatibility.adapt(original);
-    check(result.soundReferences==1,"sound superclass not retargeted: "+p.getFileName());
-    check(result.references==1,"unrelated references changed in sound archive");
+    check(result.soundReferences==0,"embedded sound must not be retargeted: "+p.getFileName());
+    check(Arrays.equals(original,result.bytes),"embedded sound archive changed");
+    check(result.references==0,"unrelated references changed in sound archive");
     check(EntryCompatibility.adapt(result.bytes).references==0,"sound retarget not idempotent");
     SWF before=new SWF(new ByteArrayInputStream(original),false),after=new SWF(new ByteArrayInputStream(result.bytes),false);
     check(before.getTags().size()==after.getTags().size(),"sound tag count");
@@ -36,13 +37,13 @@ public final class AudioAssetVerification {
     check(a.instance_info.size()==1 && b.instance_info.size()==1,"sound class count");
     InstanceInfo x=a.instance_info.get(0),y=b.instance_info.get(0);
     check(type(a,x.super_index).equals("flash.media::Sound"),"original sound superclass");
-    check(type(b,y.super_index).equals("br.davi.narutoair.compat::BrowserSound"),"native Sound wrapper superclass");
+    check(type(b,y.super_index).equals("flash.media::Sound"),"native Sound wrapper superclass");
     check(a.bodies.size()==b.bodies.size(),"method count");
     for(int i=0;i<a.bodies.size();i++)check(Arrays.equals(a.bodies.get(i).getCodeBytes(),b.bodies.get(i).getCodeBytes()),"embedded sound constructor opcodes changed");
     check(Arrays.equals(original,Files.readAllBytes(p)),"packaged mod changed");files++;
    }
   }
   check(files==15,"expected all 15 Kaguya sounds");
-  System.out.println("PASS: independent parser on 15 real Kaguya sound SWFs; MP3 bytes, sample counts, SymbolClass s1 linkage, constructor opcodes unchanged; Sound superclass retarget/idempotence. Does not prove AIR native playback.");
+  System.out.println("PASS: independent parser on 15 real Kaguya sound SWFs; MP3 bytes, sample counts, SymbolClass s1 linkage, constructor opcodes unchanged; native Sound superclass and entire SWF byte preservation. Does not prove AIR native playback.");
  }
 }

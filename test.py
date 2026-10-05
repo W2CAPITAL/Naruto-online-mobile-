@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix="naruto-tests-") as temp:
     sources=list((root/"test-stubs").rglob("*.java"))+list((root/"transport-src").rglob("*.java"))+list((root/"transport-tests").rglob("*.java"))+list((root/"compat-tests/br").rglob("*.java"))
     def run(args): subprocess.run(args,check=True)
     run([java,"-m","jdk.compiler/com.sun.tools.javac.Main","--release","8","-cp",str(lzma),"-d",str(classes)]+[str(p) for p in sources])
-    for name in ["BrowserEntry","PlainEntry"]:
+    for name in ["BrowserEntry","PlainEntry","AudioTypes"]:
         run([java,"-Dflexlib="+str(sdk/"frameworks"),"-jar",str(sdk/"lib/mxmlc-cli.jar"),"+configname=air",str(root/"compat-tests/fixture"/(name+".as")),"-debug=false","-output="+str(work/(name+".swf"))])
     cp=str(classes)+os.pathsep+str(lzma)
     run([java,"-cp",cp,"br.davi.narutoair.portal.CompatibilityTest",str(work/"BrowserEntry.swf"),str(work/"PlainEntry.swf"),str(work/"adapted.swf")])
@@ -53,8 +53,9 @@ with tempfile.TemporaryDirectory(prefix="naruto-tests-") as temp:
     run([java,"-Xverify:all","--add-exports",guard_export,"-cp",str(bridge)+os.pathsep+cp,"ReleasePortalTest"])
     if os.environ.get("FFDEC_JAR"):
         ffdec=str(Path(os.environ["FFDEC_JAR"]).resolve())
-        run([java,"-m","jdk.compiler/com.sun.tools.javac.Main","-cp",cp+os.pathsep+ffdec,"-d",str(classes),str(root/"compat-tests/IndependentVerification.java")])
+        run([java,"-m","jdk.compiler/com.sun.tools.javac.Main","-cp",cp+os.pathsep+ffdec,"-d",str(classes),str(root/"compat-tests/IndependentVerification.java"),str(root/"compat-tests/AudioConstructorVerification.java")])
         run([java,"-cp",cp+os.pathsep+ffdec,"IndependentVerification",str(work/"BrowserEntry.swf"),str(work/"adapted.swf"),str(work/"browser-fws.swf")])
+        run([java,"-cp",cp+os.pathsep+ffdec,"AudioConstructorVerification",str(work/"AudioTypes.swf"),str(work/"audio-adapted.swf"),str(work/"audio-fws.swf")])
         run([java,"-m","jdk.compiler/com.sun.tools.javac.Main","-cp",cp+os.pathsep+ffdec,"-d",str(classes),str(root/"compat-tests/AudioAssetVerification.java")])
         run([java,"-cp",cp+os.pathsep+ffdec,"AudioAssetVerification",str(root/"mods/kaguya/sounds")])
         if os.environ.get("NARUTO_OFFICIAL_ENTRY"):
